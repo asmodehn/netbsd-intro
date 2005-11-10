@@ -6,7 +6,7 @@
 
   <subtitle>This document is aimed at gathering the best way to properly
   install NetBSD 3.0 on your machine, as quick as possible, with 3 sample
-  configurations : server, desktop, development workstation</subtitle>
+  configurations : Server, Desktop, Enhanced</subtitle>
 
   <section>
     <title>Prerequisites</title>
@@ -19,32 +19,56 @@
     url="http://www.netbsd.org/guide/en/">NetBSD Guide</ulink> which explains
     all the details you might need.</para>
 
-    <para>However I will try to include as much details as possible so even
+    <para>- Server machine will run at least an HTTP serv, an FTP server, with
+    SSH remote access enable.</para>
+
+    <para>- Desktop machine will run at least XFCE4 with openoffice2
+    :-)</para>
+
+    <para>- Enhanced machine will run at least XFCE4 with 3D HW Acceleration
+    to be able to play nice games :-D</para>
+
+    <para>- All of them will be able to be kept up-to-date automatically using
+    CVS...</para>
+
+    <para></para>
+
+    <para>In the future I plan to include as much details as possible so even
     "BSD-dummies" can install NetBSD.</para>
 
     <para>If there is any problem or you are not sure of what to do, just read
     the <ulink url="http://www.netbsd.org/guide/en/">NetBSD
     Guide.</ulink></para>
 
-    <para>If something is wrong in here, or if it needs to be improved, just
-    send me a <ulink url="mailto:asmodehn@gna.org">mail</ulink>.</para>
+    <para>For any comments, just send me a <ulink
+    url="mailto:asmodehn@gna.org">mail</ulink>.</para>
+
+    <para></para>
   </section>
 
   <section>
     <title>New Installation</title>
 
-    <para></para>
+    <para>This guide is now focusing on installing NetBSD 3.0 ( will be
+    updated to match the last stable release only, although it should be
+    usable for most of them )</para>
 
     <section>
       <title>Using Floppies</title>
 
       <para></para>
+
+      <para>Get the floppy images, and copy them on floppies...</para>
+
+      <para>Boot on floppy</para>
     </section>
 
     <section>
       <title>Using ISO Images</title>
 
-      <para></para>
+      <para>Get the iso image and burn them</para>
+
+      <para>boot from the iso image</para>
     </section>
 
     <section>
@@ -66,6 +90,24 @@
 
       <para>Then you might want to add softdep on FFSv1 for /usr, and /home
       (not safe enough for /root and /var in my own opinion...)</para>
+
+      <section>
+        <title>Server settings</title>
+
+        <para></para>
+      </section>
+
+      <section>
+        <title>Desktop settings</title>
+
+        <para></para>
+      </section>
+
+      <section>
+        <title>Enhanced settings</title>
+
+        <para></para>
+      </section>
     </section>
   </section>
 
@@ -194,18 +236,355 @@
   <section>
     <title>Second Boot : Installing Useful Software</title>
 
-    <para></para>
+    <para>If you want to install a Server, you might need only the Common
+    Console Software, and the Server Software.</para>
+
+    <para>If you want to install a Desktop, you might need only the Common
+    Console Software, Common Graphic Software and the Desktop Software.</para>
+
+    <para>If you want to install a Development , you might need only the
+    Common Console Software, Common Graphic Software, the Desktop Software and
+    the Enhanced Software.</para>
+
+    <section>
+      <title>Install Common Console Software</title>
+
+      <para></para>
+
+      <para>There are the software i use on my compaq, for a fully fonctionnal
+      console station :</para>
+
+      <orderedlist>
+        <listitem>
+          <para>devel/cpuflags : install it first to optimize building from
+          sources for your cpu...</para>
+        </listitem>
+
+        <listitem>
+          <para>shells/standalone-tcsh : and make it the default for all users
+          (much more easy than ksh)</para>
+        </listitem>
+
+        <listitem>
+          <para>editors/easyedit : you can also make it the default editor of
+          a user by editing ~/.cshrc and ~/.profile</para>
+        </listitem>
+
+        <listitem>
+          <para>editors/vim : much more advanced than vi. If you install gvim
+          for to have a gtk GUI, don't install it, as the gvim package build
+          also vim for console.</para>
+        </listitem>
+
+        <listitem>
+          <para>mail/fetchmail : to fetch mail from an external mail
+          server</para>
+        </listitem>
+
+        <listitem>
+          <para>mail/mutt : to read mail</para>
+        </listitem>
+
+        <listitem>
+          <para>chat/micq : to chat on icqRun it once, it will create
+          ~/.micq/micqrc file. Quit it and edit this file to add your ICQ
+          password. Run it again, and after a well-done login, just type :
+          "contact import"</para>
+        </listitem>
+
+        <listitem>
+          <para>chat/bitchx : to chat on irc</para>
+        </listitem>
+
+        <listitem>
+          <para>www/links : to surf the web ;-)</para>
+        </listitem>
+
+        <listitem>
+          <para>net/lftp : an great unix ftp client</para>
+        </listitem>
+      </orderedlist>
+
+      <para></para>
+
+      <para>I actualy advise you to test them all in console, and take time to
+      be used to work with your console, as it is always here, even if you
+      don't have access directly to your computer, SSH POWER !!!</para>
+
+      <para>This is really useful...</para>
+
+      <para></para>
+
+      <para>For specific use, you can also install :</para>
+
+      <orderedlist>
+        <listitem>
+          <para>audio/lame : to encode audioYou need to accept the license and
+          edit mk.conf, as it is said :</para>
+        </listitem>
+      </orderedlist>
+
+      <para>ACCEPTABLE_LICENSES+=fee-based-commercial-license</para>
+
+      <orderedlist>
+        <para></para>
+
+        <listitem>
+          <para>audio/cdparanoia : to recover bad audio CDs on wav</para>
+        </listitem>
+
+        <listitem>
+          <para>graphics/povray : to generate images by eralistic rendering
+          from a .pov file, all in one command line ;-)You need to accept the
+          license and edit mk.conf, as it is said :</para>
+        </listitem>
+      </orderedlist>
+
+      <para>ACCEPTABLE_LICENSES+=povray-license</para>
+
+      <para></para>
+
+      <para></para>
+
+      <orderedlist>
+        <listitem>
+          <para>graphics/ImageMagick : to edit and convert images in command
+          line.</para>
+        </listitem>
+      </orderedlist>
+    </section>
+
+    <section>
+      <title>Install Common Graphic Software</title>
+
+      <para></para>
+
+      <para>There are the software I use for a fully fonctionnal X station
+      :</para>
+
+      <orderedlist>
+        <listitem>
+          <para>mail/fetchmailconf (GUI for fetchmail)</para>
+        </listitem>
+
+        <listitem>
+          <para>graphics/gimp</para>
+        </listitem>
+
+        <listitem>
+          <para>graphics/blender (only if you can activate dri in X, otherwise
+          it is really useless)</para>
+        </listitem>
+
+        <listitem>
+          <para>devel/SDL</para>
+        </listitem>
+
+        <listitem>
+          <para>editors/nedit</para>
+        </listitem>
+
+        <listitem>
+          <para>devel/anjuta</para>
+        </listitem>
+
+        <listitem>
+          <para>multimedia/mplayer</para>
+        </listitem>
+
+        <listitem>
+          <para>www/mozilla</para>
+        </listitem>
+
+        <listitem>
+          <para>aterm</para>
+        </listitem>
+
+        <listitem>
+          <para>games/xpuyopuyo, games/xmahjong, games/frozen-bubble,
+          games/freeciv-client (there is pubserver.freeciv.org where you can
+          play without using your own server ;-). Nice isn't it ?)</para>
+        </listitem>
+
+        <listitem>
+          <para>wm/fluxbox</para>
+        </listitem>
+
+        <listitem>
+          <para>wm/xfce4-wm et wm/xfce4-wm-themes</para>
+        </listitem>
+
+        <listitem>
+          <para>misc/openoffice. Beware ! You need huge disk space to build it
+          from source. If you want to build it on external disk, just type
+          "env WRKOBJSRC=/extern_mount/pkgsrc make update"</para>
+        </listitem>
+      </orderedlist>
+
+      <para></para>
+
+      <para></para>
+
+      <para></para>
+
+      <para></para>
+
+      <para>Now we are going to setup graphical X environment to test them all
+      ;)</para>
+
+      <para></para>
+
+      <para>Last Part : SETUP X</para>
+
+      <para></para>
+
+      <para>Just su as root and type :</para>
+
+      <para>xf86cfg</para>
+
+      <para></para>
+
+      <para>This will try an automatized configuration of X on your computer,
+      and let you customise it.</para>
+
+      <para>After that point I personnaly prefer editing /etc/X11/XF86Config
+      File with vim...</para>
+
+      <para>Here is my file for my Keynux - Epure.</para>
+
+      <para>After that I just create .xinitrc and .xsession file from
+      /usr/X11R6/lib/X11/xinit/xinitrc.</para>
+
+      <para>Refer to X documentation for advanced questions.</para>
+    </section>
+
+    <section>
+      <title>Install Server Software</title>
+
+      <para></para>
+
+      <para>There are the software I am using on most of my servers :</para>
+
+      <orderedlist>
+        <listitem>
+          <para>webmin : great tool to amdin your server. However use it only
+          if you already know how NetBSD OS is working... v1.17 -&gt;
+          modification : /etc/rc.conf in System/Shutdown and Reboot
+          section</para>
+        </listitem>
+
+        <listitem>
+          <para>apache</para>
+        </listitem>
+
+        <listitem>
+          <para>webalizer</para>
+        </listitem>
+      </orderedlist>
+    </section>
+
+    <section>
+      <title>Install Desktop Software</title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Install Enhanced Software</title>
+
+      <para></para>
+    </section>
   </section>
 
   <section>
     <title>Customization 1 : Optimizing your Kernel</title>
 
+    <para>Get the source, either using CVS ( cf 6 ) or using the tgz
+    package...</para>
+
     <para></para>
+
+    <para>Go on now ! Let's customize the kernel.</para>
+
+    <para>The most simple if to download and to install the adjustkernel
+    package and dependances from source:</para>
+
+    <para>cd /usr/pkgsrc/sysutils/adjustkernel &amp;&amp; more DESCR</para>
+
+    <para>make &amp;&amp; make install</para>
+
+    <para></para>
+
+    <para>Or, from the binary one :</para>
+
+    <para>_________________TODO_______________</para>
+
+    <para></para>
+
+    <para>Change to the directory containing kernel configuration files and
+    adjust the kernel you are currently using. For me it's GENERIC_LAPTOP
+    :</para>
+
+    <para>cd /usr/src/sys/arch/i386/conf</para>
+
+    <para></para>
+
+    <para>Now we can supprim configurations lines uneeded for your machine.
+    Just type :</para>
+
+    <para>adjustkernel -f GENERIC_LAPTOP -r -o MYKERNEL</para>
+
+    <para></para>
+
+    <para></para>
+
+    <para>./sysupdate kernel</para>
+
+    <para></para>
+
+    <para>This will build the tool chain and your custumized kernel :
+    MYKERNEL.</para>
   </section>
 
   <section>
     <title>Customization 2 : Keeping your OS up-to-date using CVS...</title>
 
     <para></para>
+
+    <para>We are going to download sources. Beware ! You need some space to
+    download them all ! Please verify you have enough disk space before
+    proceding....</para>
+
+    <para>src : around 680Mo //TO UPDATEpkgsrc : around 130Mo (without any
+    "work") //TO UPDATExsrc : around Mo //TO UPDATE</para>
+
+    <para>Since I am not aware of an easy way in NetBSD to download sources, I
+    have written my own script, based on the one for OpenBSD by James
+    Z.</para>
+
+    <para>Just <ulink url="http://sysupdate/">download it</ulink>, and put it
+    under /root</para>
+
+    <para>Edit it to change the first parameter : release and cvsroot, to
+    match what you are looking for.</para>
+
+    <para>Now get the source from CVS repository :</para>
+
+    <para>./sysupdate src</para>
+
+    <para></para>
+
+    <para>You can also get pkgsrc (useful) and xsrc (usually uneeded) if you
+    want it.</para>
+
+    <para>./sysupdate pkgsrc</para>
+
+    <para>./sysupdate xsrc</para>
+  </section>
+
+  <section>
+    <title>Customization 3 : Enabling 3D Hardware Acceleration ;-)</title>
+
+    <para>TODO...</para>
   </section>
 </article>
