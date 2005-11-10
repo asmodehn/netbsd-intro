@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.0//EN"
+"http://www.oasis-open.org/docbook/xml/simple/1.0/sdocbook.dtd">
+<article>
+  <title>NetBSD 3.0 Installation Quick and Clean</title>
+
+  <subtitle>This document is aimed at gathering the best way to properly
+  install NetBSD 3.0 on your machine, as quick as possible, with 3 sample
+  configurations : server, desktop, development workstation</subtitle>
+
+  <section>
+    <title>Prerequisites</title>
+
+    <para>For the following, I assume that you have a broadband connection, so
+    you are able to download easily the needed files.</para>
+
+    <para>I also assume that you have a basic knowledge of BSD systems, and I
+    pass some details. If something is unclear for you can refer to the <ulink
+    url="http://www.netbsd.org/guide/en/">NetBSD Guide</ulink> which explains
+    all the details you might need.</para>
+
+    <para>However I will try to include as much details as possible so even
+    "BSD-dummies" can install NetBSD.</para>
+
+    <para>If there is any problem or you are not sure of what to do, just read
+    the <ulink url="http://www.netbsd.org/guide/en/">NetBSD
+    Guide.</ulink></para>
+
+    <para>If something is wrong in here, or if it needs to be improved, just
+    send me a <ulink url="mailto:asmodehn@gna.org">mail</ulink>.</para>
+  </section>
+
+  <section>
+    <title>New Installation</title>
+
+    <para></para>
+
+    <section>
+      <title>Using Floppies</title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Using ISO Images</title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>SysInst</title>
+
+      <para>The root is big enough with 256MB as nothing big gets written in
+      it except the kernels which are usually less than 8MB.</para>
+
+      <para>I personaly advise for a /var of 2GB size at least if you dont
+      want to bother to much after installation about it. Many things get
+      written in there by default. (logs, mails, pkg database, temp
+      uncompress, etc.)</para>
+
+      <para>The default for /tmp should be enough.</para>
+
+      <para>Balance the remaining space between /usr and /home, depending of
+      the number of user (/home bigger) and software installed (/usr
+      bigger)</para>
+
+      <para>Then you might want to add softdep on FFSv1 for /usr, and /home
+      (not safe enough for /root and /var in my own opinion...)</para>
+    </section>
+  </section>
+
+  <section>
+    <title>First Boot : Basic Setup</title>
+
+    <para></para>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>Second Boot : Installing Useful Software</title>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>Customization 1 : Optimizing your Kernel</title>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>Customization 2 : Keeping your OS up-to-date using CVS...</title>
+
+    <para></para>
+  </section>
+</article>
