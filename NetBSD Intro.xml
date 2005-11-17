@@ -28,20 +28,20 @@
     <para>- Enhanced machine will run at least XFCE4 with 3D HW Acceleration
     to be able to play nice games :-D</para>
 
-    <para>- All of them will be able to be kept up-to-date automatically using
+    <para>- All of them will be able to be kept up-to-date easily using
     CVS...</para>
 
     <para></para>
 
-    <para>In the future I plan to include as much details as possible so even
+    <para>In the future I plan to include all the details needed so even
     "BSD-dummies" can install NetBSD.</para>
 
     <para>If there is any problem or you are not sure of what to do, just read
-    the <ulink url="http://www.netbsd.org/guide/en/">NetBSD
-    Guide.</ulink></para>
+    the appropriate seciton of the <ulink
+    url="http://www.netbsd.org/guide/en/">NetBSD Guide.</ulink></para>
 
-    <para>For any comments, just send me a <ulink
-    url="mailto:asmodehn@gna.org">mail</ulink>.</para>
+    <para>For any comments and feedback, I would like to hear from you, so
+    send me a <ulink url="mailto:asmodehn@gna.org">mail</ulink> ;-)</para>
 
     <para></para>
   </section>
@@ -49,9 +49,9 @@
   <section>
     <title>New Installation</title>
 
-    <para>This guide is now focusing on installing NetBSD 3.0 ( will be
-    updated to match the last stable release only, although it should be
-    usable for most of them )</para>
+    <para><emphasis>This guide is now focusing on installing NetBSD 3.0 ( will
+    be updated to match the last stable release only, although it should be
+    usable for most of them )</emphasis></para>
 
     <section>
       <title>Using Floppies</title>
@@ -94,7 +94,10 @@
       <section>
         <title>Server settings</title>
 
-        <para></para>
+        <para>If you plan to have a server, I would allocate more space on
+        /var. Having only one / slice can also sometime be a good idea, so you
+        will not have to resize your slices all the time... but there are also
+        some down sides : <emphasis>(find accurate examples)</emphasis></para>
       </section>
 
       <section>
