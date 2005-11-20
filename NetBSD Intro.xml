@@ -72,7 +72,7 @@
     <section>
       <title>Using CDROM</title>
 
-      <para>Get the iso image from one of the server, and burn it</para>
+      <para>Get the iso image from one of the server, and burn it.</para>
 
       <para>Boot on CD.</para>
     </section>
@@ -179,15 +179,17 @@
         <para>As an example here is my setup on a 40GB disk on my laptop (1GB
         RAM) :</para>
 
-        <para>4 GB /</para>
+        <para>4 GB / (more than enough)</para>
 
         <para>2 GB swap (usually around 2x the amount of RAM)</para>
 
-        <para>10 GB /usr</para>
+        <para>10 GB /usr ( base + pkgsrc + free needed to build OOo 2 )</para>
 
-        <para>2 GB /var</para>
+        <para>2 GB /var (should be ok for quite a long time)</para>
 
         <para>20+ GB /home</para>
+
+        <para>1 GB /tmp ( more than enough)</para>
 
         <para></para>
 
@@ -197,7 +199,7 @@
   </section>
 
   <section>
-    <title>First Boot : Basic Setup</title>
+    <title>First Boot : Setup the OS</title>
 
     <para><emphasis>NB from 2.0 : there is no need to change the keyboard
     layout on the first boot anymore. Sysinst has already modified the
@@ -212,50 +214,9 @@
     <para>-------------------------- current progress
     -------------------------------------</para>
 
-    <para></para>
-
-    <para>If you want to change the default shell for the new added user :
-    edit the /etc/usermgmt.conf</para>
-
-    <para>vi /etc/usermgmt.conf</para>
-
-    <para></para>
-
-    <para>for example I'd prefer ksh instead of csh :</para>
-
-    <para>shell/bin/ksh</para>
-
-    <para></para>
-
-    <para>And add a user, which can su to root, and add a password :</para>
-
-    <para>useradd -G wheel -m &lt;username&gt;</para>
-
-    <para>passwd &lt;username&gt;</para>
-
-    <para></para>
-
     <para>Now if you don't want sendmail as your default mailer, you can edit
     the /etc/mailer.conf file, to comment sendmail lines and uncomment postfix
     ones.</para>
-
-    <para>You can now edit /etc/fstab to add entries for cdrom and floppy.
-    Simply add those lines :</para>
-
-    <para>/dev/cd0 /mnt/cdrom cd9660 ro,noauto 0 0</para>
-
-    <para>/dev/fd0 /mnt/floppy msdos rw,noauto 0 0</para>
-
-    <para></para>
-
-    <para>Then you have to create those directories :</para>
-
-    <para>mkdir /mnt/cdrom /mnt/floppy</para>
-
-    <para></para>
-
-    <para>Do the same for any device you may want to mount. "man fstab" is
-    your friend.</para>
 
     <para>Test it and go ahead for the rc.conf configuration...</para>
 
@@ -294,13 +255,6 @@
 
     <para></para>
 
-    <para>If you don't want to build your customized kernel, just edit
-    rc.local to load local keymap at every boot :</para>
-
-    <para>echo "wsconsctl -k -w encoding=fr" &gt;&gt; /etc/rc.local</para>
-
-    <para></para>
-
     <para>If you don't want to customize your kernel, or if don't feel good
     with command-line based tools, you can go ahead to "Installing Usefull
     Software" and come back here later...</para>
@@ -318,7 +272,7 @@
     <para></para>
 
     <section>
-      <title>Checking the installed system</title>
+      <title>Checking the installed OS</title>
 
       <para></para>
 
@@ -352,7 +306,7 @@
     </section>
 
     <section>
-      <title>Fine tuning the installed system</title>
+      <title>Basic setup of the installed OS</title>
 
       <para>First just read your /etc/rc.conf. It gather all you system
       configuration.</para>
@@ -373,6 +327,69 @@
       <para>and adding this line</para>
 
       <para><literal>sendmail=NO</literal></para>
+
+      <para></para>
+
+      <para>TODO : getting rid of the warning by defining a hostname.</para>
+
+      <para></para>
+
+      <para></para>
+
+      <para>Now I advise you to create a new user, for you and your every-day
+      work. Using the system always with a root account is a bad idea, as one
+      little mistake can destroy everything...</para>
+
+      <para>So first enable ksh by default for all the new created
+      users</para>
+
+      <para><literal>&gt; vi /etc/usermgmt.conf</literal></para>
+
+      <para>change the related line to be :</para>
+
+      <para><literal>shell /bin/ksh</literal></para>
+
+      <para>Now you can add a new user, who will be able to su to root and
+      define his password:</para>
+
+      <para><literal>&gt; useradd -G wheel -m
+      &lt;username&gt;</literal></para>
+
+      <para><literal>&gt; passwd &lt;username&gt;</literal></para>
+
+      <para></para>
+
+      <para>Now you may have some devices to read floppy, cd , dvd,
+      etc.</para>
+
+      <para>Let say that you have one floppy drive and one cdrom reader for
+      example.</para>
+
+      <para>To be able to use them now edit /etc/fstab to add entries for
+      cdrom and floppy. Simply add those lines :</para>
+
+      <para><literal>/dev/cd0 /mnt/cdrom cd9660 ro,noauto 0 0</literal></para>
+
+      <para><literal>/dev/fd0 /mnt/floppy msdos rw,noauto 0 0</literal></para>
+
+      <para></para>
+
+      <para>Then you have to create those directories :</para>
+
+      <para><literal>&gt; mkdir /mnt/cdrom /mnt/floppy</literal></para>
+
+      <para></para>
+
+      <para>Do the same for any device you may want to mount. "man fstab" is
+      your friend :-). And remember putting all your mounted devices in /mnt
+      will prevent a mess in your root directory (especially true if you have
+      multiple HDD)</para>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Advanced setup of the installed OS</title>
 
       <para></para>
     </section>
