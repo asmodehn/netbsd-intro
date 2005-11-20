@@ -5,8 +5,9 @@
   <title>NetBSD 3.0 Installation Quick and Clean</title>
 
   <subtitle>This document is aimed at gathering the best way to properly
-  install NetBSD 3.0 on your machine, as quick as possible, with 3 sample
-  configurations : Server, Desktop, Enhanced</subtitle>
+  install NetBSD 3.0 on your machine <emphasis>(ix86)</emphasis>, as quick as
+  possible, with 3 sample configurations : Server, Desktop,
+  Enhanced</subtitle>
 
   <section>
     <title>Prerequisites</title>
@@ -14,8 +15,9 @@
     <para>For the following, I assume that you have a broadband connection, so
     you are able to download easily the needed files.</para>
 
-    <para>I also assume that you have a basic knowledge of BSD systems, and I
-    pass some details. If something is unclear for you can refer to the <ulink
+    <para>I also assume that you have a basic knowledge of computers, you know
+    quite well how to use OS like windows, and maybe some BSD systems. If
+    something is unclear for you can refer to the <ulink
     url="http://www.netbsd.org/guide/en/">NetBSD Guide</ulink> which explains
     all the details you might need.</para>
 
@@ -64,9 +66,9 @@
     </section>
 
     <section>
-      <title>Using ISO Images</title>
+      <title>Using CDROM</title>
 
-      <para>Get the iso image and burn them</para>
+      <para>Get the iso image and burn it</para>
 
       <para>boot from the iso image</para>
     </section>
@@ -74,40 +76,80 @@
     <section>
       <title>SysInst</title>
 
-      <para>The root is big enough with 256MB as nothing big gets written in
-      it except the kernels which are usually less than 8MB.</para>
+      <para>Sysint greatly helps you to install and preconfigure
+      NetBSD.</para>
 
-      <para>I personaly advise for a /var of 2GB size at least if you dont
-      want to bother to much after installation about it. Many things get
-      written in there by default. (logs, mails, pkg database, temp
-      uncompress, etc.)</para>
+      <para>First you have to choose your keyboard layout.</para>
 
-      <para>The default for /tmp should be enough.</para>
+      <para>Then you locale time. If unsure, or you dont want your netbsd to
+      manage timezones (likely if you have windows on the same machine), set
+      it to <emphasis>Universal</emphasis>.</para>
 
-      <para>Balance the remaining space between /usr and /home, depending of
-      the number of user (/home bigger) and software installed (/usr
-      bigger)</para>
+      <para>For the passwords, if you dont have any other machine around on
+      the network to deal with passwords, I would suggest to use blowfish
+      algorithm, as it should be more secure...</para>
 
-      <para>Then you might want to add softdep on FFSv1 for /usr, and /home
-      (not safe enough for /root and /var in my own opinion...)</para>
+      <para>Also, defining the root passwd now will prevent you to forget it
+      later on.</para>
+
+      <para>As a root shell I would personaly go for ksh, just because of the
+      autocompletion by default.</para>
+
+      <para></para>
+
+      <para>Now with the NetBSD partitions, the default one is the most
+      scalable, as you will not need to modify your partitions, therefore it
+      is quite suitable for simple setups like Server and Desktop. But if you
+      still plan to resize your partitions be aware that you should not put
+      less space than the indicated default as it is the usual minimum space
+      requirement.</para>
+
+      <para>A good idea is also to balance the space between /usr and /home,
+      depending of the number of user (/home bigger) and software installed
+      (/usr bigger).</para>
+
+      <para>But remember, there is no way I am aware of to resize your
+      partitions later, so, unless you really know what you are doing, you
+      better keep the default setting, with only one big / partition.</para>
+
+      <para></para>
 
       <section>
         <title>Server settings</title>
 
-        <para>If you plan to have a server, I would allocate more space on
-        /var. Having only one / slice can also sometime be a good idea, so you
-        will not have to resize your slices all the time... but there are also
-        some down sides : <emphasis>(find accurate examples)</emphasis></para>
+        <para>If you plan to have a server, and wants to modify the default
+        partition setup, I would allocate more space on /var. I personaly
+        advise for a /var of 2GB size at least if you dont want to bother to
+        much after installation about it. Many things get written in there by
+        default. (logs, mails, pkg database, temp uncompress, etc.)</para>
       </section>
 
       <section>
         <title>Desktop settings</title>
 
-        <para></para>
+        <para>For a Desktop setup the default settings should be pretty fine
+        :-)</para>
+
+        <para>Although you might want to have your /home isolated from the
+        rest of the system just in case of something going wrong on the
+        disk...</para>
       </section>
 
       <section>
         <title>Enhanced settings</title>
+
+        <para>You might want to add softdep on FFSv1 for /usr, and /home
+        therefore the operation on heavy loaded file systems will be more
+        efficient. You will be albe to do that after the first boot just by
+        editing your /etc/fstab file. However it is not safe enough to use it
+        for /root and /var in my own opinion...</para>
+
+        <para>As an example here is my setup on a 40GB disk on my laptop
+        :</para>
+
+        <para></para>
+
+        <para></para>
 
         <para></para>
       </section>
@@ -117,18 +159,18 @@
   <section>
     <title>First Boot : Basic Setup</title>
 
+    <para><emphasis>NB from 2.0 : there is no need to change the keyboard
+    layout on the first boot anymore. Sysinst has already modified the
+    etc/rc.local file for you</emphasis></para>
+
     <para></para>
 
-    <para>There is a very helpful tool from 2.0 : sushi, but when I tested it
-    (on 2.0), it made some mistakes in rc.conf... so I won't tell about it for
-    the moment. Let's do all the work by hand ;-)</para>
+    <para>I</para>
 
-    <para>First just log as root, and define a passwd for the root user, if
-    you haven't done it before.</para>
+    <para><literal></literal></para>
 
-    <para>Second change the keyboard layout temporarily :</para>
-
-    <para>wsconsctl -k -w encoding=fr</para>
+    <para>-------------------------- current progress
+    -------------------------------------</para>
 
     <para></para>
 
@@ -234,6 +276,66 @@
     <para>nice prompt...</para>
 
     <para></para>
+
+    <section>
+      <title>Checking the installed system</title>
+
+      <para></para>
+
+      <para>First verify that your setup for your partition is fine, always a
+      good idea to see what your OS needs as disk space to run :</para>
+
+      <para><literal>&gt; df</literal></para>
+
+      <para>Check your corresponding /etc/fstab file (add softdep setting now
+      if you want to).</para>
+
+      <para><literal>&gt; vi /etc/fstab</literal></para>
+
+      <para>If you are not familiar with vi, check this doc.</para>
+
+      <para></para>
+
+      <para>Check what is running by default :</para>
+
+      <para><literal>&gt; top</literal></para>
+
+      <para></para>
+
+      <para>Check which socket are open :</para>
+
+      <para><literal>&gt; netstat</literal></para>
+
+      <para></para>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Fine tuning the installed system</title>
+
+      <para>First just read your /etc/rc.conf. It gather all you system
+      configuration.</para>
+
+      <para><literal>&gt; more /etc/rc.conf</literal></para>
+
+      <para>Pretty empty ? then all the settings come from the default file
+      :</para>
+
+      <para><literal>&gt; more /etc/defaults/rc.conf</literal></para>
+
+      <para>Now that you know what this is about, you can turn on or off the
+      part of the system you want to use. For example I dont use sendmail, so
+      I can remove it from /etc/rc.conf by editing it</para>
+
+      <para><literal>&gt; vi /etc/rc.conf</literal></para>
+
+      <para>and adding this line</para>
+
+      <para><literal>sendmail=NO</literal></para>
+
+      <para></para>
+    </section>
   </section>
 
   <section>
@@ -305,6 +407,11 @@
 
         <listitem>
           <para>net/lftp : an great unix ftp client</para>
+        </listitem>
+
+        <listitem>
+          <para>sysutils/cdrecord : usefull if you have a CD / DVD writer
+          (also contain mkisofs)</para>
         </listitem>
       </orderedlist>
 
