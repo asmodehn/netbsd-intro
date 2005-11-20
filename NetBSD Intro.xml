@@ -51,66 +51,98 @@
   <section>
     <title>New Installation</title>
 
-    <para><emphasis>This guide is now focusing on installing NetBSD 3.0 ( will
-    be updated to match the last stable release only, although it should be
-    usable for most of them )</emphasis></para>
+    <para><emphasis>This document is now focusing on installing NetBSD 3.0 (
+    will be updated to match the last stable release only, although it should
+    be usable for most of them )</emphasis></para>
 
     <section>
       <title>Using Floppies</title>
 
-      <para></para>
+      <para>NB : The iso image is more easy to install. so if it is your first
+      time, go for the iso :-)</para>
 
-      <para>Get the floppy images, and copy them on floppies...</para>
+      <para>However for those who dont have a CD writer, you can get the
+      floppy images from one of the servers, and create floppies. See the
+      NetBSD guide for details.</para>
 
-      <para>Boot on floppy</para>
+      <para>Boot on floppy. During the install you might need to configure the
+      network to get the install sets from the network.</para>
     </section>
 
     <section>
       <title>Using CDROM</title>
 
-      <para>Get the iso image and burn it</para>
+      <para>Get the iso image from one of the server, and burn it</para>
 
-      <para>boot from the iso image</para>
+      <para>Boot on CD.</para>
     </section>
 
     <section>
       <title>SysInst</title>
 
-      <para>Sysint greatly helps you to install and preconfigure
-      NetBSD.</para>
+      <para>Sysint greatly helps you to install and preconfigure NetBSD. The
+      message given are usually accurate, and people have worked a lot to make
+      them as usefull as possible, so read them :-)</para>
 
-      <para>First you have to choose your keyboard layout.</para>
+      <para>First you have to choose the language for the install, then your
+      keyboard layout.</para>
 
-      <para>Then you locale time. If unsure, or you dont want your netbsd to
-      manage timezones (likely if you have windows on the same machine), set
-      it to <emphasis>Universal</emphasis>.</para>
-
-      <para>For the passwords, if you dont have any other machine around on
-      the network to deal with passwords, I would suggest to use blowfish
-      algorithm, as it should be more secure...</para>
-
-      <para>Also, defining the root passwd now will prevent you to forget it
-      later on.</para>
-
-      <para>As a root shell I would personaly go for ksh, just because of the
-      autocompletion by default.</para>
+      <para>After that you have access to the main menu of Sysinst were you
+      can choose what you want to do. Usually you will select "Install NetBSD"
+      unless you are here for a specific purpose.</para>
 
       <para></para>
+
+      <para>Now going for the installation, select "Full installation". (if
+      you dont want to use X installed or some other specific requirements, go
+      for the "Custom installation")</para>
+
+      <para>The geometry detected for your disk should be fine. Then you have
+      to decide if you want to use the entire disk on only one part of it (in
+      the last case, you have to edit the MBR).</para>
+
+      <para>Choose to update the MBR, unless you want to mess with
+      bootloaders.</para>
 
       <para>Now with the NetBSD partitions, the default one is the most
       scalable, as you will not need to modify your partitions, therefore it
       is quite suitable for simple setups like Server and Desktop. But if you
       still plan to resize your partitions be aware that you should not put
       less space than the indicated default as it is the usual minimum space
-      requirement.</para>
+      requirement. A good idea is also to balance the space between /usr and
+      /home, depending of the number of user (/home bigger) and software
+      installed (/usr bigger).</para>
 
-      <para>A good idea is also to balance the space between /usr and /home,
-      depending of the number of user (/home bigger) and software installed
-      (/usr bigger).</para>
-
-      <para>But remember, there is no way I am aware of to resize your
+      <para>But remember, there is no way that I am aware of to resize your
       partitions later, so, unless you really know what you are doing, you
       better keep the default setting, with only one big / partition.</para>
+
+      <para>After that you can check your disklabel. Everything should be ok
+      here. If something looks strange to you, check the NetBSD guide to
+      understand what a disklabel is used for.</para>
+
+      <para>Last chance to go cancel the install without harming your
+      system...</para>
+
+      <para>Now your disk is being initialized and all the selected sets are
+      installed.</para>
+
+      <para></para>
+
+      <para>Now you have to set your locale time zone. If unsure, or if you
+      dont want to bother about timezones (likely if you have windows on the
+      same machine with automatic ntp updates), set it to
+      <emphasis>Universal</emphasis>.</para>
+
+      <para>For the passwords, if you dont have any other machine around on
+      the network to deal with passwords, I would suggest to use blowfish
+      algorithm, as it should be more secure...</para>
+
+      <para>Also, defining the root password now will prevent you to forget it
+      later on.</para>
+
+      <para>And as a root shell I would personaly go for ksh, just because of
+      the autocompletion by default.</para>
 
       <para></para>
 
@@ -140,14 +172,22 @@
 
         <para>You might want to add softdep on FFSv1 for /usr, and /home
         therefore the operation on heavy loaded file systems will be more
-        efficient. You will be albe to do that after the first boot just by
+        efficient. You will be able to do that after the first boot just by
         editing your /etc/fstab file. However it is not safe enough to use it
         for /root and /var in my own opinion...</para>
 
-        <para>As an example here is my setup on a 40GB disk on my laptop
-        :</para>
+        <para>As an example here is my setup on a 40GB disk on my laptop (1GB
+        RAM) :</para>
 
-        <para></para>
+        <para>4 GB /</para>
+
+        <para>2 GB swap (usually around 2x the amount of RAM)</para>
+
+        <para>10 GB /usr</para>
+
+        <para>2 GB /var</para>
+
+        <para>20+ GB /home</para>
 
         <para></para>
 
