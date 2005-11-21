@@ -183,7 +183,8 @@
 
         <para>2 GB swap (usually around 2x the amount of RAM)</para>
 
-        <para>10 GB /usr ( base + pkgsrc + free needed to build OOo 2 )</para>
+        <para>10 GB /usr ( 0.3GB base + src+ pkgsrc + xsrc + free needed to
+        build big software like OOo 2 )</para>
 
         <para>2 GB /var (should be ok for quite a long time)</para>
 
@@ -203,11 +204,9 @@
 
     <para><emphasis>NB from 2.0 : there is no need to change the keyboard
     layout on the first boot anymore. Sysinst has already modified the
-    etc/rc.local file for you</emphasis></para>
+    /etc/wscons.conf file for you.</emphasis></para>
 
     <para></para>
-
-    <para>I</para>
 
     <para><literal></literal></para>
 
@@ -286,8 +285,6 @@
 
       <para><literal>&gt; vi /etc/fstab</literal></para>
 
-      <para>If you are not familiar with vi, check this doc.</para>
-
       <para></para>
 
       <para>Check what is running by default :</para>
@@ -330,9 +327,12 @@
 
       <para></para>
 
-      <para>TODO : getting rid of the warning by defining a hostname.</para>
+      <para>Now you need to setup a hostname for your computer.</para>
 
-      <para></para>
+      <para>The easiest way to do that is by creating the file /etc/myname,
+      and put the hostname in.</para>
+
+      <para><literal>echo "MyHostname" &gt; /etc/myname</literal></para>
 
       <para></para>
 
@@ -356,6 +356,9 @@
       &lt;username&gt;</literal></para>
 
       <para><literal>&gt; passwd &lt;username&gt;</literal></para>
+
+      <para>Then exit and login again as the new user. If everything works
+      fine, you can call "su" to authenticate as root again.</para>
 
       <para></para>
 
@@ -391,7 +394,39 @@
     <section>
       <title>Advanced setup of the installed OS</title>
 
+      <para>Now lets get a bit more fancy :-)</para>
+
+      <para>For example, I like having 4 virtual terminal, but why not being
+      able to use the max amount, that is 8 of them ?</para>
+
+      <para>first you have to edit /etc/wscons.conf :</para>
+
+      <para><literal>&gt; vi /etc/wscons.conf</literal></para>
+
+      <para>and add the corresponding line at the right place :</para>
+
+      <para><literal>screen5 - -</literal></para>
+
+      <para><literal>screen6 - -</literal></para>
+
+      <para><literal>screen7 - -</literal></para>
+
+      <para><literal>screen8 - -</literal></para>
+
+      <para>then to be able to log in those terminals, you have to edit
+      /etc/ttys :</para>
+
+      <para><literal>&gt; vi /etc/ttys</literal></para>
+
+      <para>Usually I change console to off, and ttyE0 to on, then and add the
+      needed line :</para>
+
+      <para><literal>ttyE4 "/usr/libexec/getty Pc" vt220 on
+      secure</literal></para>
+
       <para></para>
+
+      <para>TODO : prompt, X, network, sysupdate</para>
     </section>
   </section>
 
