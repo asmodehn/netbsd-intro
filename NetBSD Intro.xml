@@ -193,8 +193,6 @@
         <para>1 GB /tmp ( more than enough)</para>
 
         <para></para>
-
-        <para></para>
       </section>
     </section>
   </section>
@@ -205,68 +203,6 @@
     <para><emphasis>NB from 2.0 : there is no need to change the keyboard
     layout on the first boot anymore. Sysinst has already modified the
     /etc/wscons.conf file for you.</emphasis></para>
-
-    <para></para>
-
-    <para><literal></literal></para>
-
-    <para>-------------------------- current progress
-    -------------------------------------</para>
-
-    <para>Now if you don't want sendmail as your default mailer, you can edit
-    the /etc/mailer.conf file, to comment sendmail lines and uncomment postfix
-    ones.</para>
-
-    <para>Test it and go ahead for the rc.conf configuration...</para>
-
-    <para>vi /etc/rc.conf</para>
-
-    <para></para>
-
-    <para>For Advanced Power Management, add :</para>
-
-    <para>apmd=YES</para>
-
-    <para></para>
-
-    <para>If you are connected to a DHCP server, and want to use the network
-    information it can provide :</para>
-
-    <para>dhclient=YES dhclient_flags=”&lt;interface&gt;”</para>
-
-    <para></para>
-
-    <para>&lt;interface&gt; means the network interface that appear in dmesg.
-    For me “ne0”.</para>
-
-    <para>If you are not, you can provide static network information like this
-    :</para>
-
-    <para>_______________TODO________________</para>
-
-    <para></para>
-
-    <para>You should define a default name in /etc/myname. This will be the
-    result of the 'hostname' command, and may be used in some
-    applications.</para>
-
-    <para>Now your network interface is ready, we can reboot and go on.</para>
-
-    <para></para>
-
-    <para>If you don't want to customize your kernel, or if don't feel good
-    with command-line based tools, you can go ahead to "Installing Usefull
-    Software" and come back here later...</para>
-
-    <para></para>
-
-    <para>Configuring console : edit ttys after recompiling kernel...</para>
-
-    <para>pb : console events...</para>
-
-    <para>edit rc.conf for dhclient...</para>
-
-    <para>nice prompt...</para>
 
     <para></para>
 
@@ -293,11 +229,9 @@
 
       <para></para>
 
-      <para>Check which socket are open :</para>
+      <para>Check which internet socket are open :</para>
 
-      <para><literal>&gt; netstat</literal></para>
-
-      <para></para>
+      <para><literal>&gt; netstat -f inet</literal></para>
 
       <para></para>
     </section>
@@ -325,14 +259,13 @@
 
       <para><literal>sendmail=NO</literal></para>
 
-      <para></para>
+      <para>but I might use postfix from time to time just for smtp, and also
+      to get all the maintenance messages sent to root... So go to your
+      <literal>/etc/mailer.conf</literal>, comment the sendmail lines, and
+      uncomment the postfix lines. now back to your
+      <literal>/etc/rc.conf</literal>, and add :</para>
 
-      <para>Now you need to setup a hostname for your computer.</para>
-
-      <para>The easiest way to do that is by creating the file /etc/myname,
-      and put the hostname in.</para>
-
-      <para><literal>echo "MyHostname" &gt; /etc/myname</literal></para>
+      <para><literal>postfix=YES</literal></para>
 
       <para></para>
 
@@ -358,11 +291,56 @@
       <para><literal>&gt; passwd &lt;username&gt;</literal></para>
 
       <para>Then exit and login again as the new user. If everything works
-      fine, you can call "su" to authenticate as root again.</para>
+      fine, you can call "su" to authenticate as root again to continue to
+      setup your OS.</para>
 
       <para></para>
 
-      <para>Now you may have some devices to read floppy, cd , dvd,
+      <para>Now you need to setup a hostname for your computer.</para>
+
+      <para>The easiest way to do that is by creating the file /etc/myname,
+      and put the hostname in.</para>
+
+      <para><literal>echo "MyHostname" &gt; /etc/myname</literal></para>
+
+      <para></para>
+
+      <para>Then you need to setup your network card (also called
+      "interface"). Once again edit your rc.conf :</para>
+
+      <para><literal>&gt; vi /etc/rc.conf</literal></para>
+
+      <para>If you are connected to a DHCP server, and want to use the network
+      information it can provide :</para>
+
+      <para><literal>dhclient=YES
+      dhclient_flags=”&lt;interface&gt;”</literal></para>
+
+      <para>&lt;interface&gt; means the network interface that appear in
+      dmesg. For me “ne0”.</para>
+
+      <para>Otherwise you can provide static network information by creating a
+      specific file for ifconfig:</para>
+
+      <para><literal>&gt; vi /etc/ifconfig.&lt;interface&gt;</literal></para>
+
+      <para>and inside put the parameter you would put like using ifconfig on
+      the command line :</para>
+
+      <para><literal>inet 192.168.0.42 netmask 0xffffff00</literal></para>
+
+      <para>You can test your network configuration anytime by calling
+      :</para>
+
+      <para><literal>&gt; ifconfig -a</literal></para>
+
+      <para>Once you have activated the interface, you can go to another
+      machine connected to the network and try to ping your new NetBSD
+      computer.</para>
+
+      <para></para>
+
+      <para>You may also have some devices to read floppy, cd , dvd,
       etc.</para>
 
       <para>Let say that you have one floppy drive and one cdrom reader for
@@ -387,6 +365,8 @@
       your friend :-). And remember putting all your mounted devices in /mnt
       will prevent a mess in your root directory (especially true if you have
       multiple HDD)</para>
+
+      <para>Reboot and test that everything is running fine :-)</para>
 
       <para></para>
     </section>
@@ -418,15 +398,55 @@
 
       <para><literal>&gt; vi /etc/ttys</literal></para>
 
-      <para>Usually I change console to off, and ttyE0 to on, then and add the
-      needed line :</para>
+      <para>Usually I change console to <literal>off</literal>, and ttyE0 to
+      <literal>on</literal>, then and add the needed lines :</para>
 
       <para><literal>ttyE4 "/usr/libexec/getty Pc" vt220 on
       secure</literal></para>
 
+      <para><literal>ttyE5 "/usr/libexec/getty Pc" vt220 on
+      secure</literal></para>
+
+      <para><literal>ttyE6 "/usr/libexec/getty Pc" vt220 on
+      secure</literal></para>
+
+      <para><literal>ttyE7 "/usr/libexec/getty Pc" vt220 on
+      secure</literal></para>
+
+      <para>reboot and try them :-)</para>
+
       <para></para>
 
-      <para>TODO : prompt, X, network, sysupdate</para>
+      <para>Do you want to setup X ? just run :</para>
+
+      <para><literal>&gt; xf86cfg</literal></para>
+
+      <para>It should detect your hardware, and setup a default configuration
+      for you. After that you can customize your X setup.</para>
+
+      <para>Then exit and save the configuration. Now test it :</para>
+
+      <para><literal>&gt; startx</literal></para>
+
+      <para>The server X will run with all the default settings. If you want
+      to change those settings just create .xinitrc and .xsession file from
+      /usr/X11R6/lib/X11/xinit/xinitrc, and modify them. Refer to X
+      documentation for advanced questions.</para>
+
+      <para>We will go a bit further later when we will have our desktop
+      manager.</para>
+
+      <para></para>
+
+      <para>And now what if you want to be able to install software ? or
+      customise your installation even more ? Then try this usefull script :
+      sysupdate.</para>
+
+      <para></para>
+
+      <para><emphasis>TODO</emphasis></para>
+
+      <para></para>
     </section>
   </section>
 
@@ -448,8 +468,8 @@
 
       <para></para>
 
-      <para>There are the software i use on my compaq, for a fully fonctionnal
-      console station :</para>
+      <para>There are the software i use on my computers, for a fully
+      fonctionnal console station :</para>
 
       <orderedlist>
         <listitem>
@@ -459,7 +479,7 @@
 
         <listitem>
           <para>shells/standalone-tcsh : and make it the default for all users
-          (much more easy than ksh)</para>
+          ( more easy than ksh )</para>
         </listitem>
 
         <listitem>
@@ -483,7 +503,7 @@
         </listitem>
 
         <listitem>
-          <para>chat/micq : to chat on icqRun it once, it will create
+          <para>chat/micq : to chat on icq. Run it once, it will create
           ~/.micq/micqrc file. Quit it and edit this file to add your ICQ
           password. Run it again, and after a well-done login, just type :
           "contact import"</para>
@@ -551,7 +571,7 @@
       <orderedlist>
         <listitem>
           <para>graphics/ImageMagick : to edit and convert images in command
-          line.</para>
+          line, really useful.</para>
         </listitem>
       </orderedlist>
     </section>
@@ -626,38 +646,6 @@
       <para></para>
 
       <para></para>
-
-      <para></para>
-
-      <para></para>
-
-      <para>Now we are going to setup graphical X environment to test them all
-      ;)</para>
-
-      <para></para>
-
-      <para>Last Part : SETUP X</para>
-
-      <para></para>
-
-      <para>Just su as root and type :</para>
-
-      <para>xf86cfg</para>
-
-      <para></para>
-
-      <para>This will try an automatized configuration of X on your computer,
-      and let you customise it.</para>
-
-      <para>After that point I personnaly prefer editing /etc/X11/XF86Config
-      File with vim...</para>
-
-      <para>Here is my file for my Keynux - Epure.</para>
-
-      <para>After that I just create .xinitrc and .xsession file from
-      /usr/X11R6/lib/X11/xinit/xinitrc.</para>
-
-      <para>Refer to X documentation for advanced questions.</para>
     </section>
 
     <section>
