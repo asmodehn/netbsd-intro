@@ -12,11 +12,14 @@
   <section>
     <title>Prerequisites</title>
 
-    <para>For the following, I assume that you have a broadband connection, so
-    you are able to download easily the needed files.</para>
+    <para>For the following, I assume that you have access to a broadband
+    connection using your network, so you are able to download easily the
+    needed files. This is nowadays likely to be the case with most of the
+    modem-router broadband devices... It is also the simplest way to set it
+    up.</para>
 
     <para>I also assume that you have a basic knowledge of computers, you know
-    quite well how to use OS like windows, and maybe some BSD systems. If
+    quite well how to use OS like windows, and maybe some other systems. If
     something is unclear for you can refer to the <ulink
     url="http://www.netbsd.org/guide/en/">NetBSD Guide</ulink> which explains
     all the details you might need.</para>
@@ -39,7 +42,7 @@
     "BSD-dummies" can install NetBSD.</para>
 
     <para>If there is any problem or you are not sure of what to do, just read
-    the appropriate seciton of the <ulink
+    the appropriate section of the <ulink
     url="http://www.netbsd.org/guide/en/">NetBSD Guide.</ulink></para>
 
     <para>For any comments and feedback, I would like to hear from you, so
@@ -183,8 +186,9 @@
 
         <para>2 GB swap (usually around 2x the amount of RAM)</para>
 
-        <para>10 GB /usr ( 0.3GB base + src+ pkgsrc + xsrc + free needed to
-        build big software like OOo 2 )</para>
+        <para>10 GB /usr ( as 0.3 GB for the base + 83 MB for src and building
+        the OS + 236 MB for pkgsrc and space to build big software like OOo 2
+        + 125MB for xsrc and space to build it )</para>
 
         <para>2 GB /var (should be ok for quite a long time)</para>
 
@@ -209,8 +213,6 @@
     <section>
       <title>Checking the installed OS</title>
 
-      <para></para>
-
       <para>First verify that your setup for your partition is fine, always a
       good idea to see what your OS needs as disk space to run :</para>
 
@@ -221,13 +223,9 @@
 
       <para><literal>&gt; vi /etc/fstab</literal></para>
 
-      <para></para>
-
       <para>Check what is running by default :</para>
 
       <para><literal>&gt; top</literal></para>
-
-      <para></para>
 
       <para>Check which internet socket are open :</para>
 
@@ -338,6 +336,21 @@
       machine connected to the network and try to ping your new NetBSD
       computer.</para>
 
+      <para>Now to access internet from your new NetBSD computer you need to
+      define the gateway. For example :</para>
+
+      <para><literal>&gt; echo "192.168.1.1" &gt; /etc/mygate</literal></para>
+
+      <para>Then you have to define the dns server to resolv internet names.
+      Edit /etc/resolv.conf :</para>
+
+      <para><literal>&gt; vi /etc/resolv.conf</literal></para>
+
+      <para>and add the DNS server(s) you want to use to resolve internet
+      names.</para>
+
+      <para><literal>name server 192.168.1.1</literal></para>
+
       <para></para>
 
       <para>You may also have some devices to read floppy, cd , dvd,
@@ -442,9 +455,16 @@
       customise your installation even more ? Then try this usefull script :
       sysupdate.</para>
 
-      <para></para>
+      <para>Using this script you can quite easily download and update via CVS
+      the source for the OS (/usr/src) for the X server (/usr/xsrc) or the
+      pkgsrc tree (/usr/pkgsrc)</para>
 
-      <para><emphasis>TODO</emphasis></para>
+      <para>Just look at the first lines, you will see where you can easily
+      customize the variables to match your needs.</para>
+
+      <para>For the next step, just checkout pkgsrc like that : </para>
+
+      <para><literal>&gt; ./sysupdate pkgsrc</literal></para>
 
       <para></para>
     </section>
@@ -764,10 +784,8 @@
 
     <para></para>
 
-    <para>You can also get pkgsrc (useful) and xsrc (usually uneeded) if you
-    want it.</para>
-
-    <para>./sysupdate pkgsrc</para>
+    <para>You can also get xsrc (usually not really needed) if you want it
+    :</para>
 
     <para>./sysupdate xsrc</para>
   </section>
