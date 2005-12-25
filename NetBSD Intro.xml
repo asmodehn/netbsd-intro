@@ -84,8 +84,8 @@
       <title>SysInst</title>
 
       <para>Sysint greatly helps you to install and preconfigure NetBSD. The
-      message given are usually accurate, and people have worked a lot to make
-      them as usefull as possible, so read them :-)</para>
+      messages given are usually accurate, and people have worked a lot to
+      make them as usefull as possible, so read them :-)</para>
 
       <para>First you have to choose the language for the install, then your
       keyboard layout.</para>
@@ -514,7 +514,8 @@
 
       <para>And now what if you want to be able to install software ? or
       customise your installation even more ? Then try this usefull script :
-      sysupdate.</para>
+      <ulink
+      url="http://download.gna.org/netbsd-intro/sysupdate">sysupdate</ulink>.</para>
 
       <para>Using this script you can quite easily download and update via CVS
       the source for the OS (/usr/src) for the X server (/usr/xsrc) or the
