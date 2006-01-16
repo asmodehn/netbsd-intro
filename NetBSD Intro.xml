@@ -517,6 +517,16 @@
       <ulink
       url="http://download.gna.org/netbsd-intro/sysupdate">sysupdate</ulink>.</para>
 
+      <para>To retrieve it from your machine, just use telnet :</para>
+
+      <para><literal>&gt; telnet download.gna.org 80 &gt;
+      sysupdate</literal></para>
+
+      <para><literal>GET
+      http://download.gna.org/netbsd-intro/sysupdate</literal></para>
+
+      <para>And remove the HTTP headers...</para>
+
       <para>Using this script you can quite easily download and update via CVS
       the source for the OS (/usr/src) for the X server (/usr/xsrc) or the
       pkgsrc tree (/usr/pkgsrc)</para>
