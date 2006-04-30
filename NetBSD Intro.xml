@@ -6,8 +6,7 @@
 
   <subtitle>This document is aimed at gathering the best way to properly
   install NetBSD 3.0 on your machine <emphasis>(ix86)</emphasis>, as quick as
-  possible, with 3 sample configurations : Server, Desktop,
-  Enhanced</subtitle>
+  possible, with 2 sample configurations : Server and Desktop</subtitle>
 
   <section>
     <title>Prerequisites</title>
@@ -24,19 +23,54 @@
     url="http://www.netbsd.org/guide/en/">NetBSD Guide</ulink> which explains
     all the details you might need.</para>
 
-    <para>- Server machine will run at least an HTTP serv, an FTP server, with
-    SSH remote access enable.</para>
+    <table>
+      <title>Our NetBSD Configurations</title>
 
-    <para>- Desktop machine will run at least XFCE4 with openoffice2
-    :-)</para>
+      <tgroup cols="2">
+        <thead>
+          <row>
+            <entry align="center">Server - stable and secure</entry>
 
-    <para>- Enhanced machine will run at least XFCE4 with 3D HW Acceleration
-    to be able to play nice games :-D</para>
+            <entry align="center">Desktop - feature full, even if might
+            increase unstability</entry>
+          </row>
+        </thead>
 
-    <para>- All of them will be able to be kept up-to-date easily using
-    CVS...</para>
+        <tbody>
+          <row>
+            <entry>Safe Hardware setup</entry>
 
-    <para></para>
+            <entry>Easy and versatile Hardware setup</entry>
+          </row>
+
+          <row>
+            <entry>2 Users setup : root and a Power User (who can su)</entry>
+
+            <entry>2 Users setup : root and a Power User (who can su)</entry>
+          </row>
+
+          <row>
+            <entry>X setup : fluxbox for root, XFCE4 for PU</entry>
+
+            <entry>X setup : fluxbox for root, XFCE4 with ssh-agent running
+            for PU with xdm</entry>
+          </row>
+
+          <row>
+            <entry>SUN's Java VM setup for PU use</entry>
+
+            <entry>SUN's Java VM setup for PU use</entry>
+          </row>
+
+          <row>
+            <entry>SSH server, HTTP server (Apache), FTP
+            server(wsFTPd)</entry>
+
+            <entry>Usefull client Apps (OpenOffice, etc.)</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
 
     <para>In the future I plan to include all the details needed so even
     "BSD-dummies" can install NetBSD.</para>
@@ -47,8 +81,6 @@
 
     <para>For any comments and feedback, I would like to hear from you, so
     send me a <ulink url="mailto:asmodehn@gna.org">mail</ulink> ;-)</para>
-
-    <para></para>
   </section>
 
   <section>
@@ -56,7 +88,8 @@
 
     <para><emphasis>This document is now focusing on installing NetBSD 3.0 (
     will be updated to match the last stable release only, although it should
-    be usable for most of them )</emphasis></para>
+    be usable for most of them if you know what you are doing
+    )</emphasis></para>
 
     <section>
       <title>Using Floppies</title>
@@ -94,8 +127,6 @@
       can choose what you want to do. Usually you will select "Install NetBSD"
       unless you are here for a specific purpose.</para>
 
-      <para></para>
-
       <para>Now going for the installation, select "Full installation". (if
       you dont want to use X installed or some other specific requirements, go
       for the "Custom installation")</para>
@@ -130,8 +161,6 @@
       <para>Now your disk is being initialized and all the selected sets are
       installed.</para>
 
-      <para></para>
-
       <para>Now you have to set your locale time zone. If unsure, or if you
       dont want to bother about timezones (likely if you have windows on the
       same machine with automatic ntp updates), set it to
@@ -147,8 +176,6 @@
       <para>And as a root shell I would personaly go for ksh, just because of
       the autocompletion by default.</para>
 
-      <para></para>
-
       <section>
         <title>Server settings</title>
 
@@ -157,21 +184,6 @@
         advise for a /var of 2GB size at least if you dont want to bother to
         much after installation about it. Many things get written in there by
         default. (logs, mails, pkg database, temp uncompress, etc.)</para>
-      </section>
-
-      <section>
-        <title>Desktop settings</title>
-
-        <para>For a Desktop setup the default settings should be pretty fine
-        :-)</para>
-
-        <para>Although you might want to have your /home isolated from the
-        rest of the system just in case of something going wrong on the
-        disk...</para>
-      </section>
-
-      <section>
-        <title>Enhanced settings</title>
 
         <para>You might want to add softdep on FFSv1 for /usr, and /home
         therefore the operation on heavy loaded file systems will be more
@@ -179,24 +191,35 @@
         editing your /etc/fstab file. However it is not safe enough to use it
         for /root and /var in my own opinion...</para>
 
-        <para>As an example here is my setup on a 40GB disk on my laptop (1GB
-        RAM) :</para>
+        <para>Here is an example on a 40GB of space :</para>
 
         <para>4 GB / (more than enough)</para>
 
-        <para>2 GB swap (usually around 2x the amount of RAM)</para>
+        <para>2 GB swap (usually around 2x the amount of RAM - not really
+        needed, but might be usefull for big apps)</para>
 
-        <para>10 GB /usr ( as 0.3 GB for the base + 83 MB for src and building
-        the OS + 236 MB for pkgsrc and space to build big software like OOo 2
-        + 125MB for xsrc and space to build it )</para>
+        <para>10 GB /usr ( as 0.3 GB for the base + ~1GB for src and building
+        the OS + ~4GB for pkgsrc and space to build big software like OOo 2 +
+        125MB for xsrc and space to build it )</para>
 
         <para>2 GB /var (should be ok for quite a long time)</para>
 
         <para>20+ GB /home</para>
 
         <para>1 GB /tmp ( more than enough)</para>
+      </section>
 
-        <para></para>
+      <section>
+        <title>Desktop settings</title>
+
+        <para>For a Desktop setup the default settings should be pretty fine
+        :)</para>
+
+        <para>Just add more swap if you think your RAM might not be enough for
+        the applications you want to run.</para>
+
+        <para>Also you might want to have your /home isolated from the rest of
+        the system just in case of something going wrong on the disk...</para>
       </section>
     </section>
   </section>
@@ -208,240 +231,201 @@
     layout on the first boot anymore. Sysinst has already modified the
     /etc/wscons.conf file for you.</emphasis></para>
 
-    <para></para>
-
-    <para><literal></literal>-------------------------- current progress
-    -------------------------------------</para>
-
-    <para>Now if you don't want sendmail as your default mailer, you can edit
-    the /etc/mailer.conf file, to comment sendmail lines and uncomment postfix
-    ones.</para>
-
-    <para>Test it and go ahead for the rc.conf configuration...</para>
-
-    <para>vi /etc/rc.conf</para>
-
-    <para></para>
-
-    <para>For Advanced Power Management, add :</para>
-
-    <para>apmd=YES</para>
-
-    <para></para>
-
-    <para>If you are connected to a DHCP server, and want to use the network
-    information it can provide :</para>
-
-    <para>dhclient=YES dhclient_flags=”&lt;interface&gt;”</para>
-
-    <para></para>
-
-    <para>&lt;interface&gt; means the network interface that appear in dmesg.
-    For me “ne0”.</para>
-
-    <para>If you are not, you can provide static network information like this
-    :</para>
-
-    <para>_______________TODO________________</para>
-
-    <para></para>
-
-    <para>You should define a default name in /etc/myname. This will be the
-    result of the 'hostname' command, and may be used in some
-    applications.</para>
-
-    <para>Now your network interface is ready, we can reboot and go on.</para>
-
-    <para></para>
-
-    <para>If you don't want to customize your kernel, or if don't feel good
-    with command-line based tools, you can go ahead to "Installing Usefull
-    Software" and come back here later...</para>
-
-    <para></para>
-
-    <para>Configuring console : edit ttys after recompiling kernel...</para>
-
-    <para>pb : console events...</para>
-
-    <para>edit rc.conf for dhclient...</para>
-
-    <para>nice prompt...</para>
-
-    <para></para>
-
     <section>
       <title>Checking the installed OS</title>
 
       <para>First verify that your setup for your partition is fine, always a
       good idea to see what your OS needs as disk space to run :</para>
 
-      <para><literal>&gt; df</literal></para>
+      <programlisting>&gt; df</programlisting>
 
       <para>Check your corresponding /etc/fstab file (add softdep setting now
       if you want to).</para>
 
-      <para><literal>&gt; vi /etc/fstab</literal></para>
+      <programlisting>&gt; vi /etc/fstab</programlisting>
 
       <para>Check what is running by default :</para>
 
-      <para><literal>&gt; top</literal></para>
+      <programlisting>&gt; top</programlisting>
 
       <para>Check which internet socket are open :</para>
 
-      <para><literal>&gt; netstat -f inet</literal></para>
-
-      <para></para>
+      <programlisting>&gt; netstat -f inet</programlisting>
     </section>
 
     <section>
       <title>Basic setup of the installed OS</title>
 
-      <para>First just read your /etc/rc.conf. It gather all you system
-      configuration.</para>
+      <para>First just read your <literal>/etc/rc.conf</literal>. It gather
+      all your system custom configuration.</para>
 
-      <para><literal>&gt; more /etc/rc.conf</literal></para>
+      <programlisting>&gt; more /etc/rc.conf</programlisting>
 
-      <para>Pretty empty ? then all the settings come from the default file
-      :</para>
+      <para>Pretty empty heh ? then all the settings come from the default
+      file :</para>
 
-      <para><literal>&gt; more /etc/defaults/rc.conf</literal></para>
+      <programlisting>&gt; more /etc/defaults/rc.conf</programlisting>
 
-      <para>Now that you know what this is about, you can turn on or off the
-      part of the system you want to use. For example I dont use sendmail, so
-      I can remove it from /etc/rc.conf by editing it</para>
+      <para>Now you know how to turn on or off the base components of your OS.
+      For example if you have a GENERIC_LAPTOP kernel running, you can turn on
+      the Advanced Power Management Deamon :</para>
 
-      <para><literal>&gt; vi /etc/rc.conf</literal></para>
+      <programlisting>apmd=YES</programlisting>
 
-      <para>and adding this line</para>
+      <section>
+        <title>File Systems Setup</title>
 
-      <para><literal>sendmail=NO</literal></para>
+        <para>You may also have some devices to read floppy, cd , dvd,
+        etc.</para>
 
-      <para>but I might use postfix from time to time just for smtp, and also
-      to get all the maintenance messages sent to root... So go to your
-      <literal>/etc/mailer.conf</literal>, comment the sendmail lines, and
-      uncomment the postfix lines. now back to your
-      <literal>/etc/rc.conf</literal>, and add :</para>
+        <para>Let say that you have one floppy drive and one cdrom reader for
+        example.</para>
 
-      <para><literal>postfix=YES</literal></para>
+        <para>To be able to use them now edit <literal>/etc/fstab</literal> to
+        add entries for cdrom and floppy. Simply add those lines :</para>
 
-      <para></para>
+        <programlisting>/dev/cd0 /mnt/cdrom cd9660 ro,noauto 0 0
+/dev/fd0 /mnt/floppy msdos rw,noauto 0 0</programlisting>
 
-      <para>Now I advise you to create a new user, for you and your every-day
-      work. Using the system always with a root account is a bad idea, as one
-      little mistake can destroy everything...</para>
+        <para>Then you have to create those directories :</para>
 
-      <para>So first enable ksh by default for all the new created
-      users</para>
+        <programlisting>&gt; mkdir /mnt/cdrom /mnt/floppy</programlisting>
 
-      <para><literal>&gt; vi /etc/usermgmt.conf</literal></para>
+        <para>Do the same for any device you may want to mount. "man fstab" is
+        your friend :-). And remember putting all your mounted devices in /mnt
+        will prevent a mess in your root directory (especially true if you
+        have multiple HDD)</para>
+      </section>
 
-      <para>change the related line to be :</para>
+      <section>
+        <title>Network Setup</title>
 
-      <para><literal>shell /bin/ksh</literal></para>
+        <para>Now you need to setup a hostname for your computer.</para>
 
-      <para>Now you can add a new user with his own group, who will be able to
-      su to root and define his password:</para>
+        <para>The easiest way to do that is by creating the file /etc/myname,
+        and put the hostname in.</para>
 
-      <para><literal>&gt; useradd -G wheel -g &lt;username&gt; -m
-      &lt;username&gt;</literal></para>
+        <programlisting>&gt; echo "MyHostname" &gt; /etc/myname</programlisting>
 
-      <para><literal>&gt; passwd &lt;username&gt;</literal></para>
+        <para>You might also need to add the hostname to your /etc/hosts
+        file</para>
 
-      <para>Then exit and login again as the new user. If everything works
-      fine, you can call "su" to authenticate as root again to continue to
-      setup your OS.</para>
+        <programlisting>&gt; vi /etc/hosts</programlisting>
 
-      <para></para>
+        <programlisting>::1 MyHostName localhost localhost.
+127.0.0.1 MyHostName localhost localhost.</programlisting>
 
-      <para>Now you need to setup a hostname for your computer.</para>
+        <para>Then you need to setup your network card (also called
+        "interface"). Once again edit your rc.conf :</para>
 
-      <para>The easiest way to do that is by creating the file /etc/myname,
-      and put the hostname in.</para>
+        <programlisting>&gt; vi /etc/rc.conf</programlisting>
 
-      <para><literal>echo "MyHostname" &gt; /etc/myname</literal></para>
+        <para>If you are connected to a DHCP server, and want to use the
+        network information it can provide :</para>
 
-      <para></para>
+        <programlisting>dhclient=YES dhclient_flags=”&lt;interface&gt;”</programlisting>
 
-      <para>Then you need to setup your network card (also called
-      "interface"). Once again edit your rc.conf :</para>
+        <para>&lt;interface&gt; means the network interface that appear in
+        dmesg. For me “ne0”.</para>
 
-      <para><literal>&gt; vi /etc/rc.conf</literal></para>
+        <para>Otherwise you can provide static network information by creating
+        a specific file for ifconfig:</para>
 
-      <para>If you are connected to a DHCP server, and want to use the network
-      information it can provide :</para>
+        <programlisting>&gt; vi /etc/ifconfig.&lt;interface&gt;</programlisting>
 
-      <para><literal>dhclient=YES
-      dhclient_flags=”&lt;interface&gt;”</literal></para>
+        <para>and inside put the parameter you would put like using ifconfig
+        on the command line :</para>
 
-      <para>&lt;interface&gt; means the network interface that appear in
-      dmesg. For me “ne0”.</para>
+        <programlisting>inet 192.168.0.42 netmask 0xffffff00</programlisting>
 
-      <para>Otherwise you can provide static network information by creating a
-      specific file for ifconfig:</para>
+        <para>You can test your network configuration anytime by calling
+        :</para>
 
-      <para><literal>&gt; vi /etc/ifconfig.&lt;interface&gt;</literal></para>
+        <programlisting>&gt; ifconfig -a</programlisting>
 
-      <para>and inside put the parameter you would put like using ifconfig on
-      the command line :</para>
+        <para>Once you have activated the interface, you can go to another
+        machine connected to the network and try to ping your new NetBSD
+        computer.</para>
 
-      <para><literal>inet 192.168.0.42 netmask 0xffffff00</literal></para>
+        <para>Now to access internet from your new NetBSD computer you need to
+        define the gateway. For example :</para>
 
-      <para>You can test your network configuration anytime by calling
-      :</para>
+        <programlisting>&gt; echo "192.168.1.1" &gt; /etc/mygate</programlisting>
 
-      <para><literal>&gt; ifconfig -a</literal></para>
+        <para>Then you have to define the dns server to resolv internet names.
+        Edit /etc/resolv.conf :</para>
 
-      <para>Once you have activated the interface, you can go to another
-      machine connected to the network and try to ping your new NetBSD
-      computer.</para>
+        <programlisting>&gt; vi /etc/resolv.conf</programlisting>
 
-      <para>Now to access internet from your new NetBSD computer you need to
-      define the gateway. For example :</para>
+        <para>and add the DNS server(s) you want to use to resolve internet
+        names.</para>
 
-      <para><literal>&gt; echo "192.168.1.1" &gt; /etc/mygate</literal></para>
+        <programlisting>name server 192.168.1.1</programlisting>
+      </section>
 
-      <para>Then you have to define the dns server to resolv internet names.
-      Edit /etc/resolv.conf :</para>
+      <section>
+        <title>Mail Setup</title>
 
-      <para><literal>&gt; vi /etc/resolv.conf</literal></para>
+        <para>Now that you know what this is about, you can turn on or off the
+        part of the system you want to use. For example I dont use sendmail,
+        so I can remove it from /etc/rc.conf by editing it</para>
 
-      <para>and add the DNS server(s) you want to use to resolve internet
-      names.</para>
+        <programlisting>&gt; vi /etc/rc.conf</programlisting>
 
-      <para><literal>name server 192.168.1.1</literal></para>
+        <para>and adding this line</para>
 
-      <para></para>
+        <programlisting>sendmail=NO</programlisting>
 
-      <para>You may also have some devices to read floppy, cd , dvd,
-      etc.</para>
+        <para>but I might use postfix from time to time just for smtp, and
+        also to get all the maintenance messages sent to root... So go to your
+        <literal>/etc/mailer.conf</literal>, comment the sendmail lines, and
+        uncomment the postfix lines. now back to your
+        <literal>/etc/rc.conf</literal>, and add :</para>
 
-      <para>Let say that you have one floppy drive and one cdrom reader for
-      example.</para>
+        <programlisting>postfix=YES</programlisting>
+      </section>
 
-      <para>To be able to use them now edit /etc/fstab to add entries for
-      cdrom and floppy. Simply add those lines :</para>
+      <section>
+        <title>Power User Setup</title>
 
-      <para><literal>/dev/cd0 /mnt/cdrom cd9660 ro,noauto 0 0</literal></para>
+        <para>Now I advise you to create a new user, for you and your
+        every-day work. Using the system always with a root account is a bad
+        idea, as one little mistake can destroy everything...</para>
 
-      <para><literal>/dev/fd0 /mnt/floppy msdos rw,noauto 0 0</literal></para>
+        <para>So first enable ksh by default for all the new created
+        users</para>
 
-      <para></para>
+        <programlisting>&gt; vi /etc/usermgmt.conf</programlisting>
 
-      <para>Then you have to create those directories :</para>
+        <para>change the related line to be :</para>
 
-      <para><literal>&gt; mkdir /mnt/cdrom /mnt/floppy</literal></para>
+        <programlisting>shell /bin/ksh</programlisting>
 
-      <para></para>
+        <para>Now you can add a new user with his own group, who will be able
+        to su to root and define his password:</para>
 
-      <para>Do the same for any device you may want to mount. "man fstab" is
-      your friend :-). And remember putting all your mounted devices in /mnt
-      will prevent a mess in your root directory (especially true if you have
-      multiple HDD)</para>
+        <programlisting>&gt; useradd -G wheel -g &lt;username&gt; -m &lt;username&gt;
+&gt; passwd &lt;username&gt;</programlisting>
 
-      <para>Reboot and test that everything is running fine :-)</para>
+        <para>Then exit and login again as the new user. If everything works
+        fine, you can call "su" to authenticate as root again to continue to
+        setup your OS.</para>
+      </section>
 
-      <para></para>
+      <section>
+        <title>Power User -&gt; Setup SSH client</title>
+
+        <para>On many applications and systems nowadays, you need to be
+        identify by an SSL Key.</para>
+
+        <para>Let's start by creating one RSA key :</para>
+
+        <programlisting>&gt; ssh-keygen -t rsa</programlisting>
+
+        <para>I would advise to setup a passphrase and store the key in the
+        default location ( .ssh subdirectory ). Later on we will setup the
+        user session to run the ssh-agent automatically at startup.</para>
+      </section>
     </section>
 
     <section>
@@ -449,111 +433,301 @@
 
       <para>Now lets get a bit more fancy :-)</para>
 
-      <para>For example, I like having 4 virtual terminal, but why not being
-      able to use the max amount, that is 8 of them ?</para>
+      <section>
+        <title>Root -&gt; Improved wscons</title>
 
-      <para>first you have to edit /etc/wscons.conf :</para>
+        <para>I like having 4 virtual terminal, but it might be usefull to be
+        able to use the max amount, that is 8 of them.</para>
 
-      <para><literal>&gt; vi /etc/wscons.conf</literal></para>
+        <para><emphasis role="bold">WARNING : If you plan to run X, you should
+        NOT RUN GETTY on the same terminal. I usually keep the last one for
+        X.</emphasis></para>
 
-      <para>and add the corresponding line at the right place :</para>
+        <para>First you have to edit /etc/wscons.conf :</para>
 
-      <para><literal>screen5 - -</literal></para>
+        <para><literal>&gt; vi /etc/wscons.conf</literal></para>
 
-      <para><literal>screen6 - -</literal></para>
+        <para>and add the corresponding line at the right place :</para>
 
-      <para><literal>screen7 - -</literal></para>
+        <programlisting>screen 1 - -
+screen 2 - -
+screen 3 - -
+screen 4 - -
+screen 5 - -
+screen 6 - -
+screen 7 - -</programlisting>
 
-      <para><literal>screen8 - -</literal></para>
+        <para>then to be able to log in those terminals, you have to edit
+        <literal>/etc/ttys</literal> :</para>
 
-      <para>then to be able to log in those terminals, you have to edit
-      /etc/ttys :</para>
+        <programlisting>&gt; vi /etc/ttys</programlisting>
 
-      <para><literal>&gt; vi /etc/ttys</literal></para>
+        <para>Usually I change console to <literal>off</literal>, and I keep
+        ttyE0 to <literal>off</literal> not to mix console output and shell,
+        then I add the needed lines :</para>
 
-      <para>Usually I change console to <literal>off</literal>, and I keep
-      ttyE0 to <literal>off</literal> not to mix console output and shell,
-      then I add the needed lines :</para>
+        <programlisting>console "/usr/libexec/getty Pc" vt100 off secure
+ttyE0 "/usr/libexec/getty Pc" vt220 off secure
+ttyE1 "/usr/libexec/getty Pc" vt220 on secure
+ttyE2 "/usr/libexec/getty Pc" vt220 on secure
+ttyE3 "/usr/libexec/getty Pc" vt220 on secure
+ttyE4 "/usr/libexec/getty Pc" vt220 on secure
+ttyE5 "/usr/libexec/getty Pc" vt220 on secure
+ttyE6 "/usr/libexec/getty Pc" vt220 on secure
+ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
 
-      <para><literal>ttyE4 "/usr/libexec/getty Pc" vt220 on
-      secure</literal></para>
+        <para>reboot and give it a try :-)</para>
+      </section>
 
-      <para><literal>ttyE5 "/usr/libexec/getty Pc" vt220 on
-      secure</literal></para>
+      <section>
+        <title>Root -&gt; Setup X</title>
 
-      <para><literal>ttyE6 "/usr/libexec/getty Pc" vt220 on
-      secure</literal></para>
+        <para>Do you want to setup X ? just run :</para>
 
-      <para><literal>ttyE7 "/usr/libexec/getty Pc" vt220 on
-      secure</literal></para>
+        <programlisting>&gt; xf86cfg</programlisting>
 
-      <para>reboot and try them :-)</para>
+        <para>It should detect your hardware, and setup a default
+        configuration for you. After that you can customize your X
+        setup.</para>
 
-      <para></para>
+        <para>Then exit and save the configuration. Now test it :</para>
 
-      <para>Do you want to setup X ? just run :</para>
+        <programlisting>&gt; startx</programlisting>
 
-      <para><literal>&gt; xf86cfg</literal></para>
+        <para>The server X will run with all the default settings. If you want
+        to customize the setup, copy xinitrc to your local folder :</para>
 
-      <para>It should detect your hardware, and setup a default configuration
-      for you. After that you can customize your X setup.</para>
+        <programlisting>&gt; cp /etc/X11/xinit/xinitrc ~/.xinitrc</programlisting>
 
-      <para>Then exit and save the configuration. Now test it :</para>
+        <para>If everything runs fine, you can now setup XDM. First be sure of
+        the terminal you want to run X on (careful ttys start at 0 but vt
+        starts at 1) :</para>
 
-      <para><literal>&gt; startx</literal></para>
+        <programlisting>&gt; vi /etc/X11/xdm/Xservers</programlisting>
 
-      <para>The server X will run with all the default settings. If you want
-      to change those settings just create .xinitrc and .xsession file from
-      /usr/X11R6/lib/X11/xinit/xinitrc, and modify them. Refer to X
-      documentation for advanced questions.</para>
+        <programlisting>:0 local /usr/X11R6/bin/X vt08 -nolisten tcp</programlisting>
 
-      <para>We will go a bit further later when we will have our desktop
-      manager.</para>
+        <para>Now for the <emphasis role="bold">Desktop
+        configuration</emphasis>, you need to turn it on in your
+        <literal>/etc/rc.conf</literal> :</para>
 
-      <para></para>
+        <programlisting>&gt; vi /etc/rc.conf</programlisting>
 
-      <para>And now what if you want to be able to install software ? or
-      customise your installation even more ? Then try this usefull script :
-      <ulink
-      url="http://download.gna.org/netbsd-intro/sysupdate">sysupdate</ulink>.</para>
+        <programlisting>xdm=YES</programlisting>
 
-      <para>To retrieve it from your machine, just use telnet :</para>
+        <para>Now on your next start up xdm will be running on the 8th virtual
+        terminal.</para>
 
-      <para><literal>&gt; telnet download.gna.org 80 &gt;
-      sysupdate</literal></para>
+        <para>For the <emphasis role="bold">Server Configuration</emphasis>,
+        you can still run X when you need it by using the
+        '<literal>startx</literal>' command.</para>
 
-      <para><literal>GET
-      http://download.gna.org/netbsd-intro/sysupdate</literal></para>
+        <para>We will go a bit further later on when we will have our desktop
+        manager :-).</para>
+      </section>
 
-      <para>And remove the HTTP headers...</para>
+      <section>
+        <title>Root -&gt; Get Sysupdate and Pkgsrc</title>
 
-      <para>Using this script you can quite easily download and update via CVS
-      the source for the OS (/usr/src) for the X server (/usr/xsrc) or the
-      pkgsrc tree (/usr/pkgsrc)</para>
+        <para>And now what if you want to be able to install software ? or
+        customise your installation even more ? Then try this usefull script :
+        <ulink
+        url="http://download.gna.org/netbsd-intro/sysupdate">sysupdate</ulink>.</para>
 
-      <para>Just look at the first lines, you will see where you can easily
-      customize the variables to match your needs.</para>
+        <para>To retrieve it from your machine, maybe the simplest way is just
+        to use telnet :</para>
 
-      <para>For the next step, just checkout pkgsrc like that :</para>
+        <programlisting>&gt; telnet download.gna.org 80 &gt; sysupdate
+GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
 
-      <para><literal>&gt; ./sysupdate pkgsrc</literal></para>
+        <para>And remove the HTTP headers...</para>
 
-      <para></para>
+        <para>Using this script you can quite easily download and update via
+        CVS the source for the OS (/usr/src) for the X server (/usr/xsrc) or
+        the pkgsrc tree (/usr/pkgsrc)</para>
+
+        <para>Just look at the first lines, you will see where you can easily
+        customize the variables to match your needs.</para>
+
+        <para>For the next step, just checkout pkgsrc like that :</para>
+
+        <programlisting>&gt; ./sysupdate pkgsrc</programlisting>
+      </section>
+
+      <section>
+        <title>Installing really usefull packages</title>
+
+        <para>Here are the packages you would like to have in any case
+        :</para>
+
+        <orderedlist>
+          <listitem>
+            <para>pkgtools/pkg_install : install it first to have the latest
+            verison of the packages install tools</para>
+          </listitem>
+
+          <listitem>
+            <para>devel/cpuflags : install it first to optimize building from
+            sources for your cpu...</para>
+          </listitem>
+
+          <listitem>
+            <para>shells/standalone-tcsh : install it if you want to get rid
+            of ksh :). You can make it the default for all users if you want
+            to.</para>
+          </listitem>
+
+          <listitem>
+            <para>security/auditpackages : install it to know if the package
+            you are trying to install has a security flaw in it.</para>
+          </listitem>
+
+          <listitem>
+            <para>pkgtools/pkgfind : really usefull to find the package you
+            need.</para>
+          </listitem>
+
+          <listitem>
+            <para>pkgtools/pkg_chk : really usefull to know which ones of your
+            packages needs to be updated</para>
+          </listitem>
+
+          <listitem>
+            <para>net/wget : really usefull to grab files from the web</para>
+          </listitem>
+
+          <listitem>
+            <para>www/links : text based web browser, cause you always need to
+            browse the web to get informations.</para>
+          </listitem>
+        </orderedlist>
+
+        <para>To install a package is pretty easy. For example for pkg_install
+        :</para>
+
+        <programlisting>&gt; cd /usr/pkgsrc/pkgtools/pkg_install
+&gt; make install</programlisting>
+      </section>
+
+      <section>
+        <title>Root -&gt; Improved X</title>
+
+        <para>For the root user I like to have a better window manager than
+        twm. Let's install fluxbox :</para>
+
+        <programlisting>&gt; cd /usr/pkgsrc/wm/fluxbox
+&gt; make update</programlisting>
+
+        <para>I used make update here in case of fluxbox needed a
+        sub-dependency to be updated, it will not stop the process and will
+        just do it.</para>
+
+        <para>Now you can modify <literal>~/.xinitrc</literal> :</para>
+
+        <programlisting>&gt; vi ~/.xinitrc</programlisting>
+
+        <para>Remove any other window manager ( like twm ). Just make sure
+        that the last line actually runs fluxbox. Of course you can still run
+        some other usefull apps before that. For example :</para>
+
+        <programlisting>xclock -geometry 50x50-1+1 &amp;
+xterm -geometry 80x50+494+51 &amp;
+xterm -geometry 80x20+494-0 &amp;
+xterm -geometry 80x66+0+0 &amp;
+exec fluxbox</programlisting>
+
+        <para>This way the server will exit when you exit the window manager.
+        </para>
+      </section>
+
+      <section>
+        <title>Power User -&gt; Improved X</title>
+
+        <para>For the power user the idea is to get the ssh-agent setup on the
+        startup of his session. Then we will use XFCE4 along with xdm.</para>
+
+        <para>First we need to create the ~/.xsession file to startup the
+        agent. Mine looks like that :</para>
+
+        <programlisting>#!/bin/sh
+if [ -d $HOME/.ssh ]
+then EXEC="exec ssh-agent"
+else EXEC="exec"
+fi
+if [ -x $HOME/.xinitrc ]
+then $EXEC $HOME/.xinitrc
+else $EXEC xterm -geometry 80x24+0-60 -ls
+fi</programlisting>
+
+        <para>If you have a key in the default <literal>.ssh</literal>
+        directory, it will start the agent along with your
+        <literal>.xinitrc</literal>.</para>
+
+        <para>Now we need to run ssh-add to add the key to the agent, and ask
+        for the password. Edit your .xinitrc :</para>
+
+        <programlisting>&gt; vi .xinitrc</programlisting>
+
+        <para>after the Xresources setup sections, it should look like that
+        :</para>
+
+        <programlisting>if [ X$SSH_AUTH_SOCK != X ]; then
+ssh-add &lt; /dev/null &amp; 
+fi
+
+exec startxfce4</programlisting>
+
+        <para>Just keep in mind that XCFE4 has a session manager which can
+        automatically rerun apps from the last saved session.</para>
+
+        <para>Now on every login ssh-askpass will popup and ask you for your
+        passphrase if needed. Your agent will be running in the background to
+        authentify you without annoying you ;-)</para>
+      </section>
+
+      <section>
+        <title>Power User -&gt; Running SUN's JDK and JRE</title>
+
+        <para>Now that we have a nicely setup X we can install java.</para>
+
+        <para>As you are told when you do :</para>
+
+        <programlisting>&gt; cd /usr/pkgsrc/lang/sun-jdk15
+&gt; make update</programlisting>
+
+        <para>You will have to have the linux compatibility enabled (enabled
+        by default in the GENERIC Kernel) and the linux procfs mounted (you
+        already knw how to do that).</para>
+
+        <para>You will also need to increase the default limits for the user,
+        and setup the rights paths.</para>
+
+        <para>This is how I setup my .cshrc for it (using csh or tcsh)
+        :</para>
+
+        <programlisting>
+#java setup
+limit datasize 656020
+setenv JAVA_HOME /usr/pkg/java/sun-1.5
+setenv PATH ${PATH}:${JAVA_HOME}/bin
+setenv CLASSPATH ${JAVA_HOME}/jre/lib/rt.jar
+</programlisting>
+
+        <para>and for the .profile if you are using sh or ksh :</para>
+
+        <programlisting>#java setup
+TODO</programlisting>
+
+        <para>Now your java installaiton should work. You can give it a try
+        :</para>
+
+        <programlisting>&gt; java -version</programlisting>
+      </section>
     </section>
   </section>
 
   <section>
     <title>Second Boot : Installing Useful Software</title>
-
-    <para>If you want to install a Server, you might need only the Common
-    Console Software, and the Server Software.</para>
-
-    <para>If you want to install a Desktop, you might need only the Common
-    Console Software, Common Graphic Software and the Desktop Software.</para>
-
-    <para>If you want to install a Development , you might need only the
-    Common Console Software, Common Graphic Software, the Desktop Software and
-    the Enhanced Software.</para>
 
     <section>
       <title>Install Common Console Software</title>
@@ -564,16 +738,6 @@
       fonctionnal console station :</para>
 
       <orderedlist>
-        <listitem>
-          <para>devel/cpuflags : install it first to optimize building from
-          sources for your cpu...</para>
-        </listitem>
-
-        <listitem>
-          <para>shells/standalone-tcsh : and make it the default for all users
-          ( more easy than ksh )</para>
-        </listitem>
-
         <listitem>
           <para>editors/easyedit : you can also make it the default editor of
           a user by editing ~/.cshrc and ~/.profile</para>
@@ -603,10 +767,6 @@
 
         <listitem>
           <para>chat/bitchx : to chat on irc</para>
-        </listitem>
-
-        <listitem>
-          <para>www/links : to surf the web ;-)</para>
         </listitem>
 
         <listitem>
