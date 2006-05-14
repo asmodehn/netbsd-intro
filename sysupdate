@@ -20,7 +20,7 @@ CVS_COMP_LVL=3
 #relCVS="current"
 relCVS="netbsd-3"
 pkgrelCVS="current"
-#pkgrelCVS="pkgsrc-2005Q3"
+#pkgrelCVS="pkgsrc-2006Q1"
 
 #Beware : The menu will use these as default values for now...
 
@@ -98,11 +98,7 @@ echo "Updating the vulnerability list..."
 /usr/pkg/sbin/download-vulnerability-list
 #comment the next 3 lines if you dont want installed packages to be check
 echo "Checking if installed packes are older than the downloaded ones..."
-/usr/pkg/sbin/pkg_chk -c 
-#the next line will automatically update installed package.
-#/usr/pkg/sbin/pkg_chk -aku
-#you can add -s or -b to force source or binary packages...
-echo "Dont forget to update your config files!!!"
+/usr/pkg/sbin/pkg_chk -a -q 
 else
 set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA pkgsrc | tee /root/sysupdate_pkgsrc.log
 fi
