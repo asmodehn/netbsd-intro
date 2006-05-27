@@ -144,6 +144,10 @@ echo "No Config File found for this Kernel..."
 echo -n " Type the name of the Kernel to Build or [Ctrl-C] to exit : "
 read KERNAME 
 done
+if [ ! -d /usr/obj ]
+then
+mkdir /usr/obj
+fi
 cd /usr/src
 #TODO Prompt for update or not
 set -x

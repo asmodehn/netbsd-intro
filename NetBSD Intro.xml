@@ -377,10 +377,38 @@
         <programlisting>sendmail=NO</programlisting>
 
         <para>but I might use postfix from time to time just for smtp, and
-        also to get all the maintenance messages sent to root... So go to your
-        <literal>/etc/mailer.conf</literal>, comment the sendmail lines, and
-        uncomment the postfix lines. now back to your
-        <literal>/etc/rc.conf</literal>, and add :</para>
+        also to get all the maintenance messages sent to root. You first need
+        to change your MTA (Mail Transport Agent) :</para>
+
+        <para></para>
+
+        <programlisting>&gt; vi /etc/mailer.conf</programlisting>
+
+        <para>Then comment the sendmail lines, and uncomment the postfix
+        lines.</para>
+
+        <para></para>
+
+        <programlisting>[...]
+
+#sendmail    /usr/libexec/sendmail/sendmail
+#send-mail   /usr/libexec/sendmail/sendmail
+#mailq       /usr/libexec/sendmail/sendmail
+#newaliases  /usr/libexec/sendmail/sendmail
+#hoststat    /usr/libexec/sendmail/sendmail
+#purgestat   /usr/libexec/sendmail/sendmail
+
+[...]
+
+sendmail     /usr/libexec/postfix/sendmail
+send-mail    /usr/libexec/postfix/sendmail
+mailq        /usr/libexec/postfix/sendmail
+newaliases   /usr/libexec/postfix/sendmail
+
+[...]</programlisting>
+
+        <para>Now back to your <literal>/etc/rc.conf</literal>, and add
+        :</para>
 
         <programlisting>postfix=YES</programlisting>
       </section>
@@ -476,7 +504,19 @@ ttyE5 "/usr/libexec/getty Pc" vt220 on secure
 ttyE6 "/usr/libexec/getty Pc" vt220 on secure
 ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
 
-        <para>reboot and give it a try :-)</para>
+        <para>Note that ttyE7 is off since I plan to have X running on this
+        VT.</para>
+
+        <para>Also If you plan to use a mouse on the console, remember to
+        create a configuration file for the wsmoused deamon:</para>
+
+        <programlisting>&gt; vi /etc/wsmoused.conf</programlisting>
+
+        <para>with the content :</para>
+
+        <programlisting>xconsole = 7;</programlisting>
+
+        <para>Just reboot and give it a try :-)</para>
       </section>
 
       <section>
@@ -636,8 +676,8 @@ xterm -geometry 80x20+494-0 &amp;
 xterm -geometry 80x66+0+0 &amp;
 exec fluxbox</programlisting>
 
-        <para>This way the server will exit when you exit the window manager.
-        </para>
+        <para>This way the server will exit when you exit the window
+        manager.</para>
       </section>
 
       <section>
@@ -697,7 +737,7 @@ exec startxfce4</programlisting>
 
         <para>You will have to have the linux compatibility enabled (enabled
         by default in the GENERIC Kernel) and the linux procfs mounted (you
-        already knw how to do that).</para>
+        already know how to do that).</para>
 
         <para>You will also need to increase the default limits for the user,
         and setup the rights paths.</para>
@@ -716,7 +756,13 @@ setenv CLASSPATH ${JAVA_HOME}/jre/lib/rt.jar
         <para>and for the .profile if you are using sh or ksh :</para>
 
         <programlisting>#java setup
-TODO</programlisting>
+ulimit -d 656020
+JAVA_HOME=/usr/pkg/java/sun-1.5
+PATH=${PATH}:${JAVA_HOME}/bin
+CLASSPATH=${JAVA_HOME}/jre/lib/rt.jar
+export JAVA_HOME
+export PATH
+export CLASSPATH</programlisting>
 
         <para>Now your java installaiton should work. You can give it a try
         :</para>
