@@ -295,6 +295,12 @@
         your friend :-). And remember putting all your mounted devices in /mnt
         will prevent a mess in your root directory (especially true if you
         have multiple HDD)</para>
+
+        <para>Also you might want to create usefull symbolic links in /dev, as
+        setup by some software by default :</para>
+
+        <programlisting>&gt; ln -s /dev/cd0d /dev/dvd
+&gt; ln -s /dev/cd0d /dev/cdrom</programlisting>
       </section>
 
       <section>
