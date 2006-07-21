@@ -145,7 +145,7 @@
 
     <programlisting>PKG_RCD_SCRIPTS=YES</programlisting>
 
-    <para>to your /etc/mk.conf. </para>
+    <para>to your /etc/mk.conf.</para>
 
     <para>However I still prefer having a symbolic link from /etc/rc.d to the
     usefull script if your filesystem supports it, so I know where my startup
@@ -186,7 +186,7 @@
     &lt;/LimitExcept&gt;
 &lt;/Directory&gt;</programlisting>
 
-    <para> If you wish to start the Apache Webserver at boottime, you need to
+    <para>If you wish to start the Apache Webserver at boottime, you need to
     add apache=yes to your /etc/rc.conf. Remember the apache rc.d script needs
     to be accessible from /etc/rc.d</para>
 
@@ -322,13 +322,70 @@ extension=zip.so</programlisting>
     <programlisting>&gt; cd /usr/pkgsr/databases/postgresql80
 &gt; make &amp;&amp; make install</programlisting>
 
-    <para>If the build and installation were fine,</para>
+    <para>If the build and installation were fine, you should now add
+    pgsql=yes to your /etc/rc.conf. Remember the pgsql rc.d script needs to be
+    accessible from /etc/rc.d</para>
+
+    <programlisting>&gt; ln -s /usr/pkg/share/examples/rc.d/pgsql /etc/rc.d/pgsql</programlisting>
+
+    <para>You could now start the PostgresQL server using postmaster, or
+    better, using the rc.d script if you enabled it, just like that :</para>
+
+    <programlisting>&gt; /etc/rc.d/pgsql start</programlisting>
+
+    <para>This will take care of the initial setup for you ;-)</para>
+
+    <para>To stop the server, just substitute start with stop as usual.</para>
 
     <para></para>
 
-    <para>If you dont need a specific version of PostgresQL, but you want/need
-    a nice interface to administrate your database, you should install
-    phppgadmin.</para>
+    <para>I strongly advise you to install phpPgAdmin to administrate your
+    database. It makes the work easier. However to be quite secure, phpPgAdmin
+    doesnt authorise the default user pgsql to login.</para>
+
+    <para></para>
+
+    <para>Here is how we will setup the PostgresQL installation to be secure
+    and usable with a "database administrator" login in phpPgAdmin :</para>
+
+    <para></para>
+
+    <itemizedlist>
+      <listitem>
+        <para>PostgresQL is by default configured to "trust" local user, that
+        means they dont need to enter any password. But as we will have a
+        website to access it, that will soon become a problem.</para>
+
+        <para>We first need to reconfigure the PostgresQL administrator (user
+        pgsql) to have a password.</para>
+
+        <programlisting>&gt; su pgsql
+$ psql -c "ALTER USER pgsql WITH PASSWORD '<replaceable>newpassword</replaceable>'" -d template1
+$ exit</programlisting>
+      </listitem>
+
+      <listitem>
+        <para>Then we need to reconfigure the server to ask for a password,
+        even for local users :</para>
+
+        <programlisting>&gt; vim /usr/pkg/pgsql/data/pg_hba.conf</programlisting>
+
+        <programlisting># TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+
+# "local" is for Unix domain socket connections only
+local   all         all                               md5
+# IPv4 local connections:
+host    all         all         127.0.0.1/32          md5
+# IPv6 local connections:
+host    all         all         ::1/128               md5</programlisting>
+      </listitem>
+
+      <listitem>
+        <para>Now restart your server to apply the changes :</para>
+
+        <programlisting>&gt; /etc/rc.d/pgsql restart</programlisting>
+      </listitem>
+    </itemizedlist>
 
     <para></para>
   </section>
@@ -379,5 +436,39 @@ Include /usr/pkg/share/examples/phppgadmin/apache.conf</programlisting>
     <programlisting>&gt; links http://localhost/phppgadmin/</programlisting>
 
     <para>Hint : Dont forget the trailing slash...</para>
+
+    <para></para>
+
+    <para>At this point you should not be able to login as pgsql. To enable
+    this just edit /usr/pkg/share/phppgadmin/config.inc.php and set the extra
+    login security to false :</para>
+
+    <programlisting>&gt; vim /usr/pkg/share/phppgadmin/config.inc.php</programlisting>
+
+    <programlisting>// If extra login security is true, then logins via phpPgAdmin with no
+// password or certain usernames (pgsql, postgres, root, administrator)
+// will be denied. Only set this false once you have read the FAQ and
+// understand how to change PostgreSQL's pg_hba.conf to enable
+// passworded local connections.
+$conf['extra_login_security'] = false;</programlisting>
+
+    <para><emphasis role="bold">Please make sure you have enable md5 password
+    authentication in the PostgresQL Server as explicited before
+    !!!</emphasis></para>
+
+    <para>I would really appreciate any feedback on this section and the best
+    way to setup a secure postgresQL / phpPgAdmin since my experience with
+    databases and PostgresQL is quite limited. Just drop me a <ulink
+    url="mailto:asmodehn_AT_gna_DOT_org">mail</ulink>, thanks a lot !</para>
+
+    <para></para>
+
+    <para>Now you should be able to login as pgsql with the password you
+    specified earlier on. This way you can easily create databases for blogs,
+    wikis, etc.</para>
+
+    <para></para>
+
+    <para></para>
   </section>
 </article>
