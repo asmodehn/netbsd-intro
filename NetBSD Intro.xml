@@ -2,7 +2,7 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.0//EN"
 "http://www.oasis-open.org/docbook/xml/simple/1.0/sdocbook.dtd">
 <article>
-  <title>NetBSD 3.0 Installation Quick and Clean</title>
+  <title>NetBSD 3.0.1 Installation Quick and Clean</title>
 
   <subtitle>This document is aimed at gathering the best way to properly
   install NetBSD 3.0 on your machine <emphasis>(ix86)</emphasis>, as quick as
@@ -31,7 +31,7 @@
           <row>
             <entry align="center">Server - stable and secure</entry>
 
-            <entry align="center">Desktop - feature full, even if might
+            <entry align="center">Desktop - feature full, even if that might
             increase unstability</entry>
           </row>
         </thead>
@@ -86,7 +86,7 @@
   <section>
     <title>New Installation</title>
 
-    <para><emphasis>This document is now focusing on installing NetBSD 3.0 (
+    <para><emphasis>This document is now focusing on installing NetBSD 3.0.1 (
     will be updated to match the last stable release only, although it should
     be usable for most of them if you know what you are doing
     )</emphasis></para>
@@ -94,15 +94,15 @@
     <section>
       <title>Using Floppies</title>
 
-      <para>NB : The iso image is more easy to install. so if it is your first
-      time, go for the iso :-)</para>
+      <para><emphasis>NB : The iso image is more easy to install. so if it is
+      your first time, go for the iso :-)</emphasis></para>
 
       <para>However for those who dont have a CD writer, you can get the
       floppy images from one of the servers, and create floppies. See the
       NetBSD guide for details.</para>
 
       <para>Boot on floppy. During the install you might need to configure the
-      network to get the install sets from the network.</para>
+      network to get the install sets from the NetBSDFTP servers.</para>
     </section>
 
     <section>
@@ -135,19 +135,18 @@
       to decide if you want to use the entire disk on only one part of it (in
       the last case, you have to edit the MBR).</para>
 
-      <para>Choose to update the MBR, unless you want to mess with
+      <para>Choose to update the MBR, unless you want to mess around with
       bootloaders.</para>
 
-      <para>Now with the NetBSD partitions, the default one is the most
+      <para>Now with the NetBSD partitions, the default scheme is the most
       scalable, as you will not need to modify your partitions, therefore it
-      is quite suitable for simple setups like Server and Desktop. But if you
-      still plan to resize your partitions be aware that you should not put
-      less space than the indicated default as it is the usual minimum space
-      requirement. A good idea is also to balance the space between /usr and
-      /home, depending of the number of user (/home bigger) and software
-      installed (/usr bigger).</para>
+      is quite suitable for simple setups like our Desktop. But if you still
+      plan to define your own partition scheme, be aware that you should not
+      put less space than the indicated default as it is the usual minimum
+      space requirement. Take a look at the further sections for advised
+      partition scheme depending on what you need.</para>
 
-      <para>But remember, there is no way that I am aware of to resize your
+      <para>Remember, there is no way that I am aware of to resize your
       partitions later, so, unless you really know what you are doing, you
       better keep the default setting, with only one big / partition.</para>
 
@@ -191,22 +190,22 @@
         editing your /etc/fstab file. However it is not safe enough to use it
         for /root and /var in my own opinion...</para>
 
-        <para>Here is an example on a 40GB of space :</para>
+        <para>Here is an example on 16GB of space :</para>
 
-        <para>4 GB / (more than enough)</para>
+        <para>1 GB / (more than enough)</para>
 
-        <para>2 GB swap (usually around 2x the amount of RAM - not really
+        <para>256 GB swap (usually around 2x the amount of RAM - not really
         needed, but might be usefull for big apps)</para>
 
-        <para>10 GB /usr ( as 0.3 GB for the base + ~1GB for src and building
+        <para>6+ GB /usr ( as 0.3 GB for the base + ~1GB for src and building
         the OS + ~4GB for pkgsrc and space to build big software like OOo 2 +
-        125MB for xsrc and space to build it )</para>
+        125MB for xsrc and space to build it ) + softdep</para>
 
-        <para>2 GB /var (should be ok for quite a long time)</para>
+        <para>1 GB /var (should be ok for quite a long time)</para>
 
-        <para>20+ GB /home</para>
+        <para>8 GB /home + softdep</para>
 
-        <para>1 GB /tmp ( more than enough)</para>
+        <para>128 GB /tmp ( more than enough)</para>
       </section>
 
       <section>
@@ -220,6 +219,9 @@
 
         <para>Also you might want to have your /home isolated from the rest of
         the system just in case of something going wrong on the disk...</para>
+
+        <para>To add more safety, you can partition your disk a bit more as
+        explained in the server section before.</para>
       </section>
     </section>
   </section>
@@ -237,7 +239,7 @@
       <para>First verify that your setup for your partition is fine, always a
       good idea to see what your OS needs as disk space to run :</para>
 
-      <programlisting>&gt; df</programlisting>
+      <programlisting>&gt; df -h</programlisting>
 
       <para>Check your corresponding /etc/fstab file (add softdep setting now
       if you want to).</para>
@@ -267,10 +269,21 @@
       <programlisting>&gt; more /etc/defaults/rc.conf</programlisting>
 
       <para>Now you know how to turn on or off the base components of your OS.
-      For example if you have a GENERIC_LAPTOP kernel running, you can turn on
-      the Advanced Power Management Deamon :</para>
+      For example if you have a GENERIC_LAPTOP kernel running, or another
+      kernel with apm support, you can turn on the Advanced Power Management
+      Deamon :</para>
 
       <programlisting>apmd=YES</programlisting>
+
+      <para>To check if you have apm supported on your kernel, and detected on
+      your hardware :</para>
+
+      <programlisting>&gt; dmesg | grep apm
+apm0 at mainbus0: Power Management spec V1.2
+apm0: battery life expectancy: 100%
+apm0: A/C state: off
+apm0: battery charge state: high
+apm0: estimated 2h 26m</programlisting>
 
       <section>
         <title>File Systems Setup</title>
@@ -296,8 +309,8 @@
         will prevent a mess in your root directory (especially true if you
         have multiple HDD)</para>
 
-        <para>Also you might want to create usefull symbolic links in /dev, as
-        setup by some software by default :</para>
+        <para>Also you might want to create usefull symbolic links in /dev, to
+        match some software defaults settings :</para>
 
         <programlisting>&gt; ln -s /dev/cd0d /dev/dvd
 &gt; ln -s /dev/cd0d /dev/cdrom</programlisting>
@@ -308,13 +321,18 @@
 
         <para>Now you need to setup a hostname for your computer.</para>
 
-        <para>The easiest way to do that is by creating the file /etc/myname,
-        and put the hostname in.</para>
+        <para>If you have a Fully Qualified Internet Domain Name, you can use
+        the hostname variable in /etc/rc.conf:</para>
+
+        <programlisting>hostname="machine.domain.org"</programlisting>
+
+        <para>Other wise, the simplest way to do that is by creating the file
+        /etc/myname, and put the hostname in.</para>
 
         <programlisting>&gt; echo "MyHostname" &gt; /etc/myname</programlisting>
 
-        <para>You might also need to add the hostname to your /etc/hosts
-        file</para>
+        <para>You might also need to add the hostname to your /etc/hosts file,
+        to simplify name resolution :</para>
 
         <programlisting>&gt; vi /etc/hosts</programlisting>
 
@@ -354,7 +372,8 @@
         computer.</para>
 
         <para>Now to access internet from your new NetBSD computer you need to
-        define the gateway. For example :</para>
+        define the gateway, if you dont have a DHCP server, or if it doesnt
+        provide it to you. For example :</para>
 
         <programlisting>&gt; echo "192.168.1.1" &gt; /etc/mygate</programlisting>
 
@@ -367,6 +386,12 @@
         names.</para>
 
         <programlisting>name server 192.168.1.1</programlisting>
+
+        <para><emphasis role="bold">NB : If you have more than one network
+        interfaces, and a connection that can go up and down, a specific
+        configuration of your ifconfig.&lt;interface&gt; files is needed.
+        Please check the NetBSD Guide for more details about advanced network
+        configuration.</emphasis></para>
       </section>
 
       <section>
@@ -426,19 +451,15 @@ newaliases   /usr/libexec/postfix/sendmail
         every-day work. Using the system always with a root account is a bad
         idea, as one little mistake can destroy everything...</para>
 
-        <para>So first enable ksh by default for all the new created
-        users</para>
+        <para>First create your new group dedicated to your power user ( I use
+        tghe username for that) :</para>
 
-        <programlisting>&gt; vi /etc/usermgmt.conf</programlisting>
-
-        <para>change the related line to be :</para>
-
-        <programlisting>shell /bin/ksh</programlisting>
+        <programlisting>groupadd &lt;username&gt;</programlisting>
 
         <para>Now you can add a new user with his own group, who will be able
         to su to root and define his password:</para>
 
-        <programlisting>&gt; useradd -G wheel -g &lt;username&gt; -m &lt;username&gt;
+        <programlisting>&gt; useradd -G wheel -g &lt;username&gt; -s /bin/ksh -m &lt;username&gt;
 &gt; passwd &lt;username&gt;</programlisting>
 
         <para>Then exit and login again as the new user. If everything works
@@ -452,7 +473,8 @@ newaliases   /usr/libexec/postfix/sendmail
         <para>On many applications and systems nowadays, you need to be
         identify by an SSL Key.</para>
 
-        <para>Let's start by creating one RSA key :</para>
+        <para>Let's start by creating one RSA key ( as alex, not as root
+        ):</para>
 
         <programlisting>&gt; ssh-keygen -t rsa</programlisting>
 
@@ -465,7 +487,8 @@ newaliases   /usr/libexec/postfix/sendmail
     <section>
       <title>Advanced setup of the installed OS</title>
 
-      <para>Now lets get a bit more fancy :-)</para>
+      <para>Now lets get a bit more fancy :-) Login as alex and su to root
+      first. Here we go...</para>
 
       <section>
         <title>Root -&gt; Improved wscons</title>

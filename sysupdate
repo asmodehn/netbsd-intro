@@ -19,8 +19,8 @@ CVS_COMP_LVL=3
 # 1) CVS Option for Tracked Branch ("current" for current branch)
 #relCVS="current"
 relCVS="netbsd-3"
-pkgrelCVS="current"
-#pkgrelCVS="pkgsrc-2006Q1"
+#pkgrelCVS="current"
+pkgrelCVS="pkgsrc-2006Q2"
 
 #Beware : The menu will use these as default values for now...
 
