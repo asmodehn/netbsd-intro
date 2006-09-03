@@ -47,7 +47,7 @@
             <entry>DNS - for name resolution, so you can forget the IP
             address</entry>
 
-            <entry>???</entry>
+            <entry>BIND (???)</entry>
           </row>
 
           <row>
@@ -147,9 +147,83 @@
 
     <para>to your /etc/mk.conf.</para>
 
-    <para>However I still prefer having a symbolic link from /etc/rc.d to the
-    usefull script if your filesystem supports it, so I know where my startup
-    scripts come from.</para>
+    <para></para>
+  </section>
+
+  <section>
+    <title>SSH Setup</title>
+
+    <para>For a basic ssh server setup, we will use the ssh version available
+    in the base system. The only thing we need to do : turn it on in
+    /etc/rc.conf.</para>
+
+    <programlisting>sshd=YES</programlisting>
+
+    <para>And that's it. Now you can start it and test it, it will create the
+    required keys automatically :</para>
+
+    <programlisting>&gt; /etc/rc.d/sshd start</programlisting>
+
+    <para>To tune a bit more your configuration, you need to know about
+    ssh.</para>
+  </section>
+
+  <section>
+    <title>DNS Setup</title>
+
+    <para><emphasis role="bold">TODO</emphasis></para>
+  </section>
+
+  <section>
+    <title>NTP Setup</title>
+
+    <para><emphasis role="bold">TODO</emphasis></para>
+
+    <section>
+      <title>Client only</title>
+
+      <para>Just edit your /etc/rc.conf :</para>
+
+      <programlisting>ntpdate=YES</programlisting>
+
+      <para>And that's it ! At boot time your clock will be synchronized with
+      ntp servers.</para>
+    </section>
+
+    <section>
+      <title>NTP Server</title>
+
+      <para></para>
+    </section>
+  </section>
+
+  <section>
+    <title>Mail : SMTP, IMAP, POP3</title>
+
+    <para><emphasis role="bold">TODO</emphasis></para>
+  </section>
+
+  <section>
+    <title>FTP Server</title>
+
+    <para>First, you need to install the proftpd package using pkgsrc :</para>
+
+    <programlisting>&gt; cd /usr/pkgsrc/net/proftpd
+&gt; make &amp;&amp; make install</programlisting>
+
+    <para>If your build and installation was successful, TODO</para>
+
+    <para></para>
+
+    <para>If you wish to start the ProFTPd server at boottime, you need to add
+    proftpd=YES to your /etc/rc.conf.</para>
+
+    <para>Using the rc.d script, you can start the server just like that
+    :</para>
+
+    <programlisting>&gt; /etc/rc.d/proftpd start</programlisting>
+
+    <para>To stop the server, substitute start with stop.</para>
 
     <para></para>
   </section>
@@ -187,10 +261,7 @@
 &lt;/Directory&gt;</programlisting>
 
     <para>If you wish to start the Apache Webserver at boottime, you need to
-    add apache=yes to your /etc/rc.conf. Remember the apache rc.d script needs
-    to be accessible from /etc/rc.d</para>
-
-    <programlisting>&gt; ln -s /usr/pkg/share/examples/rc.d/apache /etc/rc.d/apache</programlisting>
+    add apache=yes to your /etc/rc.conf.</para>
 
     <para>You could now start, stop and restart the Apache Webserver using
     apachectl like that :</para>
@@ -323,10 +394,7 @@ extension=zip.so</programlisting>
 &gt; make &amp;&amp; make install</programlisting>
 
     <para>If the build and installation were fine, you should now add
-    pgsql=yes to your /etc/rc.conf. Remember the pgsql rc.d script needs to be
-    accessible from /etc/rc.d</para>
-
-    <programlisting>&gt; ln -s /usr/pkg/share/examples/rc.d/pgsql /etc/rc.d/pgsql</programlisting>
+    pgsql=yes to your /etc/rc.conf.</para>
 
     <para>You could now start the PostgresQL server using postmaster, or
     better, using the rc.d script if you enabled it, just like that :</para>

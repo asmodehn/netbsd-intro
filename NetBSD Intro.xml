@@ -606,10 +606,13 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
         <para>To retrieve it from your machine, maybe the simplest way is just
         to use telnet :</para>
 
-        <programlisting>&gt; telnet download.gna.org 80 &gt; sysupdate
+        <programlisting>&gt; telnet download.gna.org 80 &gt; sysupdate_dl
 GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
 
         <para>And remove the HTTP headers...</para>
+
+        <programlisting>&gt; tail -n 3 sysupdate_dl &gt; sysupdate
+&gt; chmod u+x sysupdate</programlisting>
 
         <para>Using this script you can quite easily download and update via
         CVS the source for the OS (/usr/src) for the X server (/usr/xsrc) or
@@ -657,17 +660,42 @@ GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
           </listitem>
 
           <listitem>
-            <para>pkgtools/pkg_chk : really usefull to know which ones of your
-            packages needs to be updated</para>
+            <para>pkgtools/pkgclean : really usefull to clean your work
+            directory after building packages.</para>
           </listitem>
 
           <listitem>
-            <para>net/wget : really usefull to grab files from the web</para>
+            <para>pkgtools/pkg_chk : really usefull to know which ones of your
+            packages needs to be updated.</para>
+          </listitem>
+
+          <listitem>
+            <para>pkgtools/pkg_select : really usefull to choose a package to
+            install with a curses interface.</para>
+          </listitem>
+
+          <listitem>
+            <para>pkgtools/pkg_tarup : really usefull to make a backup of your
+            installed packages.</para>
+          </listitem>
+
+          <listitem>
+            <para>net/wget : really usefull to grab files from the web.</para>
           </listitem>
 
           <listitem>
             <para>www/links : text based web browser, cause you always need to
             browse the web to get informations.</para>
+          </listitem>
+
+          <listitem>
+            <para>misc/screen : a virtual terminal manager, very handy
+            remotely if your connection get lost.</para>
+          </listitem>
+
+          <listitem>
+            <para>security/sudo : to run specific commands as another user,
+            without his password.</para>
           </listitem>
         </orderedlist>
 
