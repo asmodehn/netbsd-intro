@@ -982,6 +982,19 @@ Copyback is 100% complete.</programlisting>
       </section>
 
       <section>
+        <title>NTP client</title>
+
+        <para>To stay uptodate, and since you may have internet or a
+        connection to a NTP server, you can enable ntpdate. Just edit your
+        /etc/rc.conf :</para>
+
+        <programlisting>ntpdate=YES</programlisting>
+
+        <para>And that's it ! At boot time your clock will be synchronized
+        with ntp servers.</para>
+      </section>
+
+      <section>
         <title>SSH Server (optional)</title>
 
         <para>For a basic ssh server setup, we will use the ssh version

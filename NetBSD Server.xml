@@ -170,12 +170,7 @@
     <section>
       <title>Client only</title>
 
-      <para>Just edit your /etc/rc.conf :</para>
-
-      <programlisting>ntpdate=YES</programlisting>
-
-      <para>And that's it ! At boot time your clock will be synchronized with
-      ntp servers.</para>
+      <para></para>
     </section>
 
     <section>

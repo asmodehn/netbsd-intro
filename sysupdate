@@ -22,6 +22,7 @@ relCVS="netbsd-4"
 #pkgrelCVS="current"
 pkgrelCVS="pkgsrc-2007Q1"
 tooldir="tooldir.sysupdate"
+arch=i386
 
 #Beware : The menu will use these as default values for now...
 
@@ -142,7 +143,7 @@ return $?
 compilekernel()
 {
 KERNAME=$1
-cd /usr/src/sys/arch/i386/conf
+cd /usr/src/sys/arch/$arch/conf
 while [ X$KERNAME = X ] || [ ! -r $KERNAME ]
 do
 echo "No Config File found for this Kernel..."
@@ -189,14 +190,14 @@ return $?
 changekernel()
 {
 KERNAME=$1
-cd /usr/src/sys/arch/i386/compile/obj
+cd /usr/src/sys/arch/$arch/compile/obj
 while [ X$KERNAME = X ] || [ ! -r $KERNAME/netbsd ]
 do
 echo "No kernel found for $KERNAME..."
 echo -n " Type the name of the built kernel to Install or [Ctrl-C] to exit : "
 read KERNAME 
 done
-cd /usr/src/sys/arch/i386/compile/obj/$KERNAME && \
+cd /usr/src/sys/arch/$arch/compile/obj/$KERNAME && \
 make install && \
 shutdown -r +5
 if [ $menu -eq 0 ] ;then mainmenu; fi
