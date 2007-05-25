@@ -153,19 +153,7 @@
   <section>
     <title>SSH Setup</title>
 
-    <para>For a basic ssh server setup, we will use the ssh version available
-    in the base system. The only thing we need to do : turn it on in
-    /etc/rc.conf.</para>
-
-    <programlisting>sshd=YES</programlisting>
-
-    <para>And that's it. Now you can start it and test it, it will create the
-    required keys automatically :</para>
-
-    <programlisting>&gt; /etc/rc.d/sshd start</programlisting>
-
-    <para>To tune a bit more your configuration, you need to know about
-    ssh.</para>
+    <para></para>
   </section>
 
   <section>

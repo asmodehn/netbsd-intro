@@ -2,11 +2,12 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.0//EN"
 "http://www.oasis-open.org/docbook/xml/simple/1.0/sdocbook.dtd">
 <article>
-  <title>NetBSD 3.0.1 Installation Quick and Clean</title>
+  <title>NetBSD 4.0 Installation Quick and Clean</title>
 
   <subtitle>This document is aimed at gathering the best way to properly
-  install NetBSD 3.0 on your machine <emphasis>(ix86)</emphasis>, as quick as
-  possible, with 2 sample configurations : Server and Desktop</subtitle>
+  install NetBSD 4.0 on your machine <emphasis>(ix86 or amd64)</emphasis>, as
+  quick as possible, with 2 sample configurations : Server and
+  Desktop</subtitle>
 
   <section>
     <title>Prerequisites</title>
@@ -21,7 +22,9 @@
     quite well how to use OS like windows, and maybe some other systems. If
     something is unclear for you can refer to the <ulink
     url="http://www.netbsd.org/guide/en/">NetBSD Guide</ulink> which explains
-    all the details you might need.</para>
+    all the details you might need. Please also keep in mind that this
+    document has been written while working on 4.0 BETA_2, therefore some
+    details might be a bit different.</para>
 
     <table>
       <title>Our NetBSD Configurations</title>
@@ -38,7 +41,8 @@
 
         <tbody>
           <row>
-            <entry>Safe Hardware setup</entry>
+            <entry>Safe Hardware setup with RAID 1, APC UPS ( and Xen3 maybe ?
+            )</entry>
 
             <entry>Easy and versatile Hardware setup</entry>
           </row>
@@ -63,8 +67,8 @@
           </row>
 
           <row>
-            <entry>SSH server, HTTP server (Apache), FTP
-            server(wsFTPd)</entry>
+            <entry>IPSec setup, SSH server, HTTP server (Apache), FTP
+            server(proFTPd), etc.</entry>
 
             <entry>Usefull client Apps (OpenOffice, etc.)</entry>
           </row>
@@ -86,7 +90,7 @@
   <section>
     <title>New Installation</title>
 
-    <para><emphasis>This document is now focusing on installing NetBSD 3.0.1 (
+    <para><emphasis>This document is now focusing on installing NetBSD 4.0 (
     will be updated to match the last stable release only, although it should
     be usable for most of them if you know what you are doing
     )</emphasis></para>
@@ -102,7 +106,7 @@
       NetBSD guide for details.</para>
 
       <para>Boot on floppy. During the install you might need to configure the
-      network to get the install sets from the NetBSDFTP servers.</para>
+      network to get the install sets from the NetBSD FTP servers.</para>
     </section>
 
     <section>
@@ -194,7 +198,7 @@
 
         <para>1 GB / (more than enough)</para>
 
-        <para>256 GB swap (usually around 2x the amount of RAM - not really
+        <para>256 MB swap (usually around 2x the amount of RAM - not really
         needed, but might be usefull for big apps)</para>
 
         <para>6+ GB /usr ( as 0.3 GB for the base + ~1GB for src and building
@@ -205,7 +209,7 @@
 
         <para>8 GB /home + softdep</para>
 
-        <para>128 GB /tmp ( more than enough)</para>
+        <para>128 MB /tmp ( more than enough)</para>
       </section>
 
       <section>
@@ -227,7 +231,7 @@
   </section>
 
   <section>
-    <title>First Boot : Setup the OS</title>
+    <title>First Step : Setup the OS</title>
 
     <para><emphasis>NB from 2.0 : there is no need to change the keyboard
     layout on the first boot anymore. Sysinst has already modified the
@@ -239,20 +243,25 @@
       <para>First verify that your setup for your partition is fine, always a
       good idea to see what your OS needs as disk space to run :</para>
 
-      <programlisting>&gt; df -h</programlisting>
+      <programlisting># df -h</programlisting>
 
       <para>Check your corresponding /etc/fstab file (add softdep setting now
       if you want to).</para>
 
-      <programlisting>&gt; vi /etc/fstab</programlisting>
+      <programlisting># vi /etc/fstab</programlisting>
 
       <para>Check what is running by default :</para>
 
-      <programlisting>&gt; top</programlisting>
+      <programlisting># top</programlisting>
 
       <para>Check which internet socket are open :</para>
 
-      <programlisting>&gt; netstat -f inet</programlisting>
+      <programlisting># netstat -f inet</programlisting>
+
+      <para>Check which hardware components have been found by the kernel you
+      choosed to boot on ( likely to be GENERIC )</para>
+
+      <programlisting># dmesg | more</programlisting>
     </section>
 
     <section>
@@ -261,29 +270,82 @@
       <para>First just read your <literal>/etc/rc.conf</literal>. It gather
       all your system custom configuration.</para>
 
-      <programlisting>&gt; more /etc/rc.conf</programlisting>
+      <programlisting># more /etc/rc.conf</programlisting>
 
       <para>Pretty empty heh ? then all the settings come from the default
       file :</para>
 
-      <programlisting>&gt; more /etc/defaults/rc.conf</programlisting>
+      <programlisting># more /etc/defaults/rc.conf</programlisting>
 
-      <para>Now you know how to turn on or off the base components of your OS.
-      For example if you have a GENERIC_LAPTOP kernel running, or another
-      kernel with apm support, you can turn on the Advanced Power Management
-      Deamon :</para>
+      <para>Now you know how to turn on or off the base components of your
+      OS.</para>
 
-      <programlisting>apmd=YES</programlisting>
+      <section>
+        <title>Power Management</title>
 
-      <para>To check if you have apm supported on your kernel, and detected on
-      your hardware :</para>
+        <para>If you have a kernel running with some power management feature,
+        like APM or ACPI, it s time to set it up. NB : Choose one or the other
+        in the kernel and in your setup, not both.</para>
 
-      <programlisting>&gt; dmesg | grep apm
+        <section>
+          <title>APM</title>
+
+          <para>If you have a kernel with apm support, you can turn on the
+          Advanced Power Management Deamon :</para>
+
+          <programlisting>apmd=YES</programlisting>
+
+          <para>To check if you have apm supported on your kernel, and
+          detected on your hardware :</para>
+
+          <programlisting># dmesg | grep apm
 apm0 at mainbus0: Power Management spec V1.2
 apm0: battery life expectancy: 100%
 apm0: A/C state: off
 apm0: battery charge state: high
 apm0: estimated 2h 26m</programlisting>
+
+          <para>As explicited for ACPI you can also enable powerd on top of
+          apmd.</para>
+        </section>
+
+        <section>
+          <title>ACPI</title>
+
+          <para>While ACPI takes care of many things for you, you might want
+          to setup extra steps on power events. To do that you need to use
+          powerd.</para>
+
+          <para>First turn it on in /etc/rc.conf, with debug flag to test the
+          behaviour :</para>
+
+          <programlisting>powerd=YES                       powerd_flags="-d"</programlisting>
+
+          <para>As an example, now when pressing the power button, the machine
+          shouldnt power off right away, but instead do a " shutdown -p now "
+          , which is cleaner and most of all safe for RAID setups.</para>
+
+          <para>You can test this behavior also with your reset button if you
+          have one. Just take some time to define the appropriate power
+          management policy. On this will depend the stability of your system
+          later on.</para>
+        </section>
+
+        <section>
+          <title>Setting up an UPS ( an example with the APC UPS ) with USB
+          (optional)</title>
+
+          <para>To get the USB to be correctly identified, you need to disable
+          uhidev and related devices in the kernel, or at least forbid them to
+          grab the UPS instead of ugen by specifying each parameter you need.
+          So even if this should be done in an early stage, you need to fetch
+          the kernel sources first in order to build your kernel to recognise
+          the UPS correctly, and download the packages needed to use
+          it.</para>
+
+          <para>TODO</para>
+        </section>
+      </section>
 
       <section>
         <title>File Systems Setup</title>
@@ -302,7 +364,7 @@ apm0: estimated 2h 26m</programlisting>
 
         <para>Then you have to create those directories :</para>
 
-        <programlisting>&gt; mkdir /mnt/cdrom /mnt/floppy</programlisting>
+        <programlisting># mkdir /mnt/cdrom /mnt/floppy</programlisting>
 
         <para>Do the same for any device you may want to mount. "man fstab" is
         your friend :-). And remember putting all your mounted devices in /mnt
@@ -312,8 +374,533 @@ apm0: estimated 2h 26m</programlisting>
         <para>Also you might want to create usefull symbolic links in /dev, to
         match some software defaults settings :</para>
 
-        <programlisting>&gt; ln -s /dev/cd0d /dev/dvd
-&gt; ln -s /dev/cd0d /dev/cdrom</programlisting>
+        <programlisting># ln -s /dev/cd0d /dev/dvd
+# ln -s /dev/cd0d /dev/cdrom</programlisting>
+      </section>
+
+      <section>
+        <title>RAID 1 Setup if you have two identical disks (optional)</title>
+
+        <para>WARNING : Be extra carefull here, as one little mistake can
+        destroy your newly installed system. I hope this kind of stuff will
+        make it at some point into sysinst, but nothing is available right
+        now, as far as I know...</para>
+
+        <para>We need to make sure RAID support is enabled in the kernel,
+        which is the case for the GENERIC kernel. If you have already built a
+        custom kernel for your environment, the kernel configuration must have
+        the following options:</para>
+
+        <programlisting>pseudo-device   raid            8       # RAIDframe disk driver
+options         RAID_AUTOCONFIG         # auto-configuration of RAID components</programlisting>
+
+        <para>The RAID support must be detected by the NetBSD kernel, which
+        can be checked by looking at the output of the dmesg(8)
+        command.</para>
+
+        <programlisting># dmesg | grep -i raid
+Kernelized RAIDframe activated</programlisting>
+
+        <para>We assume here that you already installed NetBSD as usual on
+        wd0.</para>
+
+        <para>To improve disk performance, and only if you have a power
+        redundancy or an UPS, you can enable read and write caches on the
+        drives if it s not already done. To check that and change it if
+        needed, use the dkctl utility :</para>
+
+        <programlisting># dkctl wd0 getcache
+/dev/rwd0d: read cache enabled
+/dev/rwd0d: read cache enable is not changeable
+/dev/rwd0d: write cache enable is changeable
+/dev/rwd0d: cache parameters are not savable
+# dkctl wd0 setcache rw
+# dkctl wd0 getcache
+/dev/rwd0d: read cache enabled
+/dev/rwd0d: write-back cache enabled
+/dev/rwd0d: read cache enable is not changeable
+/dev/rwd0d: write cache enable is changeable
+/dev/rwd0d: cache parameters are not savable</programlisting>
+
+        <para>Now lets configure wd1 properly to mirror the data.</para>
+
+        <programlisting>#dd if=/dev/zero of=/dev/rwd1d bs=8k count=1
+1+0 records in
+1+0 records out
+8192 bytes transferred in 0.003 secs (2730666 bytes/sec)</programlisting>
+
+        <para>Now we need to properly setup wd1 for RAID, and activating the
+        correct partition to be able to boot on it. Don't bother about wd0 for
+        now, it will join the RAID array later on.</para>
+
+        <programlisting># fdisk -0ua /dev/rwd1d
+fdisk: primary partition table invalid, no magic in sector 0
+Disk: /dev/rwd1d
+NetBSD disklabel disk geometry:
+cylinders: 19386, heads: 16, sectors/track: 63 (1008 sectors/cylinder)
+total sectors: 19541088
+
+BIOS disk geometry:
+cylinders: 1023, heads: 255, sectors/track: 63 (16065 sectors/cylinder)
+total sectors: 19541088
+
+Do you want to change our idea of what BIOS thinks? [n]
+
+Partition 0:
+&lt;UNUSED&gt;
+The data for partition 0 is:
+&lt;UNUSED&gt;
+sysid: [0..255 default: 169]
+start: [0..1216cyl default: 63, 0cyl, 0MB]
+size: [0..1216cyl default: 19541025, 1216cyl, 9542MB]
+bootmenu: []
+Do you want to change the active partition? [n] y
+Choosing 4 will make no partition active.
+active partition: [0..4 default: 0] 0
+Are you happy with this choice? [n] y
+
+We haven't written the MBR back to disk yet.  This is your last chance.
+Partition table:
+0: NetBSD (sysid 169)
+    start 63, size 19541025 (9542 MB, Cyls 0-1216/96/1), Active
+        PBR is not bootable: All bytes are identical (0x00)
+1: &lt;UNUSED&gt;
+2: &lt;UNUSED&gt;
+3: &lt;UNUSED&gt;
+Bootselector disabled.
+Should we write new partition table? [n] y
+
+# disklabel -r -e -I wd1
+type: unknown
+disk: Disk1
+label:
+flags:
+bytes/sector: 512
+sectors/track: 63
+tracks/cylinder: 16
+sectors/cylinder: 1008
+cylinders: 19386
+total sectors: 19541088
+[...snip...]
+16 partitions:
+#        size    offset     fstype [fsize bsize cpg/sgs]
+ a:  19541025        63       RAID                     # (Cyl.      0*-19385)
+ c:  19541025        63     unused      0     0        # (Cyl.      0*-19385)
+ d:  19541088         0     unused      0     0        # (Cyl.      0 -19385)</programlisting>
+
+        <para>Next we create the configuration file for the RAID set / volume.
+        Traditionally, RAIDframe configuration files belong in /etc and would
+        be read and initialized at boot time, however, because we are creating
+        a bootable RAID volume, the configuration data will actually be
+        written into the RAID volume using the "auto-configure" feature.
+        Therefore, files are needed only during the initial setup and should
+        not reside in /etc.</para>
+
+        <programlisting># vi /var/tmp/raid0.conf
+START array
+1 2 0
+
+START disks
+absent
+/dev/wd1a
+
+START layout
+128 1 1 1
+
+START queue
+fifo 100</programlisting>
+
+        <para>Note that "absent" is a special disk name for a non existing
+        disk. We will put wd0 there later on.</para>
+
+        <para>Next we configure the RAID device and initialize the serial
+        number to something unique. In this example we use a
+        "YYYYMMDDRevision" scheme. The format you choose is entirely at your
+        discretion, however the scheme you choose should ensure that no two
+        RAID sets use the same serial number at the same time.</para>
+
+        <para>After that we initialize the RAID set for the first time, safely
+        ignoring the errors regarding the bogus component.</para>
+
+        <programlisting># raidctl -v -C /var/tmp/raid0.conf raid0
+Ignoring missing component at column 0
+Hosed component: /dev/wd1a
+Hosed component: /dev/wd1a
+raid0: Component absent being configured at col: 0
+         Column: 0 Num Columns: 0
+         Version: 0 Serial Number: 0 Mod Counter: 0
+         Clean: No Status: 0
+Number of columns do not match for: absent
+absent is not clean!
+raid0: Ignoring /dev/wd1a
+raid0: There were fatal errors
+raid0: Fatal errors being ignored.
+raid0: RAID Level 1
+raid0: Components: component0[**FAILED**] /dev/wd1a
+raid0: Total Sectors: 19540864 (9541 MB)
+# raidctl -v -I 2004082401 raid0
+# raidctl -v -i raid0
+Initiating re-write of parity
+raid0: Error re-writing parity!
+Parity Re-write status:
+
+# raidctl -v -s raid0
+Components:
+           component0: failed
+           /dev/wd1a: optimal
+No spares.
+component0 status is: failed.  Skipping label.
+Component label for /dev/wd1a:
+   Row: 0, Column: 1, Num Rows: 1, Num Columns: 2
+   Version: 2, Serial Number: 2004082401, Mod Counter: 7
+   Clean: No, Status: 0
+   sectPerSU: 128, SUsPerPU: 1, SUsPerRU: 1
+   Queue size: 100, blocksize: 512, numBlocks: 19540864
+   RAID Level: 1
+   Autoconfig: No
+   Root partition: No
+   Last configured as: raid0
+Parity status: DIRTY
+Reconstruction is 100% complete.
+Parity Re-write is 100% complete.
+Copyback is 100% complete.</programlisting>
+
+        <para>Careful : The root filesystem must begin at sector 0 of the RAID
+        device. Else, the primary boot loader will be unable to find the
+        secondary boot loader.</para>
+
+        <para>The RAID device is now configured and available. The RAID device
+        is a pseudo disk-device. It will be created with a default disk label.
+        Now we need to setup the correct filesystems on different slices as we
+        decided earlier for the usual installation. Once again you need to
+        edit the disklabel:</para>
+
+        <programlisting># disklabel -r -e -I raid0</programlisting>
+
+        <para>Once the slices have been specified, format the newly created
+        partitions as a 4.2BSD FFSv2 File System:</para>
+
+        <programlisting># newfs -O 2 /dev/rraid0a &amp;&amp; fsck -fy /dev/rraid0a</programlisting>
+
+        <para>Do that for each slice you created on your raid
+        pseudo-drive.</para>
+
+        <para>Now we need to setup space for kernel dumps. Unfortunately when
+        a dumps has to happen, process scheduling is stopped, which forbids us
+        to use raid0 swap space for it. However, nothing stops us from
+        defining a dump area which overlaps with raid0b. The trick here is to
+        calculate the correct start offset for our crash dump area. This is
+        dangerous and it is possible to destroy valuable data if we make a
+        mistake in these calculations! Data corruption will happen when the
+        kernel writes its memory dump over a normal filesystem. So we must be
+        extra careful here.</para>
+
+        <para>I will use a simple configuration example here, as found in the
+        NetBSD guide. First we need to take a look at the disklabel for swap
+        (raid0b) and the real physical disk (wd1).</para>
+
+        <programlisting># disklabel raid0
+ 8 partitions:
+ #        size    offset     fstype  [fsize bsize cpg/sgs]
+  a:  19015680         0     4.2BSD   1024  8192    64
+  b:    525184  19015680     swap
+  d:  19540864         0     unused      0     0     0
+
+# disklabel wd1
+ 8 partitions:
+ #        size    offset     fstype  [fsize bsize cpg/sgs]
+  a:  19541025        63     RAID
+  c:  19541025        63     unused      0     0
+  d:  19541088         0     unused      0     0</programlisting>
+
+        <para>Each component of a RAID set has a 64 block reserved area (see
+        RF_PROTECTED_SECTORS in &lt;dev/raidframe/raidframevar.h&gt;) in the
+        beginning of the component to store the internal RAID
+        structures.</para>
+
+        <programlisting># dc
+ 63              # offset of wd1a
+ 64              # RF_PROTECTED_SECTORS
+ +
+ 19015680        # offset of raid0b
+ +p
+ 19015807        # offset of swap within wd1
+ q</programlisting>
+
+        <para>We know now that real offset of the still-nonexisting wd1b is
+        19015807 and size is 525184. Next we need to add wd1b to wd1's
+        disklabel.</para>
+
+        <programlisting># disklabel wd1 &gt; disklabel.wd1
+# vi disklabel.wd1
+
+ 8 partitions:
+ #        size    offset     fstype  [fsize bsize cpg/sgs]
+  a:  19541025        63       RAID
+  b:    525184  19015807       swap
+  c:  19541025        63     unused      0     0
+  d:  19541088         0     unused      0     0 </programlisting>
+
+        <para>Next we install the new disklabel.</para>
+
+        <programlisting># disklabel -R -r wd1 disklabel.wd1</programlisting>
+
+        <para>The new RAID filesystems are now ready for use. We mount them
+        under /mnt and copy all files from the old system. This can be done
+        using dump(8) or pax(1).</para>
+
+        <programlisting># mount /dev/raid0a /mnt
+# df -h /mnt
+Filesystem    Size     Used     Avail Capacity  Mounted on
+/dev/raid0a   9.0G     2.0K      8.6G     0%    /mnt
+# cd /; pax -v -X -rw -pe / /mnt</programlisting>
+
+        <para>The NetBSD install now exists on the RAID filesystem. We need to
+        fix the mount-points in the new copy of /etc/fstab or the system will
+        not come up correctly. Replace instances of wd0 with raid0.</para>
+
+        <para>Note that the kernel crash dumps must not be saved on a RAID
+        device but on a real physical disk (wd0b). This dump area was created
+        in the previous chapter on the second disk (wd1b) but we will make wd0
+        an identical copy of wd1 later so wd0b and wd1b will have the same
+        size and offset. If wd0 fails and is removed from the server wd1
+        becomes wd0 after reboot and crash dumps will still work as we are
+        using wd0b in /etc/fstab. The only fault in this configuration is when
+        the original, failed wd0 is replaces by a new drive and we haven't
+        initialized it yet with fdisk and disklabel. In this short period of
+        time we can not make crash dumps in case of kernel panic. Note how the
+        dump device has the “dp” keyword on the 4th field.</para>
+
+        <programlisting># vi /mnt/etc/fstab
+
+/dev/raid0a  /  ffs  rw  1  1
+/dev/raid0b  none  swap  sw  0  0
+/dev/wd0b  none  swap  dp  0  0
+kernfs    /kern  kernfs  rw
+procfs    /proc  procfs  rw</programlisting>
+
+        <para>The swap should be unconfigured upon shutdown to avoid parity
+        errors on the RAID device. This can be done with a simple, one-line
+        setting in /etc/rc.conf.</para>
+
+        <programlisting># vi /mnt/etc/rc.conf
+swapoff=YES</programlisting>
+
+        <para>Next the boot loader must be installed on wd1. Failure to
+        install the loader on wd1 will render the system un-bootable if wd0
+        fails making the RAID-1 pointless.</para>
+
+        <para>Although it may seem logical to install the 1st stage boot block
+        into /dev/rwd1{c,d} (which is historically correct with NetBSD 1.6.x
+        installboot(8) , this is no longer the case. If you make this mistake,
+        the boot sector will become irrecoverably damaged and you will need to
+        start the process over again.</para>
+
+        <para>Install the boot loader into /dev/rwd1a :</para>
+
+        <programlisting># /usr/sbin/installboot -o timeout=30 -v /dev/rwd1a /usr/mdec/bootxx_ffsv2</programlisting>
+
+        <para>Hint : using different timeout values can help you to determine
+        from which physical disk the system is actually booting.</para>
+
+        <para>Finally the RAID set must be made auto-configurable and the
+        system should be rebooted. After the reboot everything is mounted from
+        the RAID devices.</para>
+
+        <programlisting># raidctl -v -A root raid0
+raid0: New autoconfig value is: 1
+raid0: New rootpartition value is: 1
+raid0: Autoconfigure: Yes
+raid0: Root: Yes
+# raidctl -v -s raid0
+[...snip...]
+   Autoconfig: Yes
+   Root partition: Yes
+   Last configured as: raid0
+[...snip...]
+# shutdown -r now</programlisting>
+
+        <para>WARNING : Always use shutdown(8) when shutting down. Never
+        simply use reboot(8). reboot(8) will not properly run shutdown RC
+        scripts and will not safely disable swap. This will cause dirty parity
+        at every reboot.</para>
+
+        <para>To test that your raid drive boots fine, change your BIOS
+        settings to boot wd1 before wd0.</para>
+
+        <para>The system should boot now and all filesystems should be on the
+        RAID devices. The RAID will be functional with a single component,
+        however the set is not fully functional because one drive is
+        "absent".</para>
+
+        <programlisting># egrep -i "raid|root" /var/run/dmesg.boot
+raid0: RAID Level 1
+raid0: Components: component0[**FAILED**] /dev/wd1a
+raid0: Total Sectors: 19540864 (9541 MB)
+boot device: raid0
+root on raid0a dumps on raid0b
+root file system type: ffs
+
+# df -h
+Filesystem    Size     Used     Avail Capacity  Mounted on
+/dev/raid0a   8.9G     196M      8.3G     2%    /
+kernfs        1.0K     1.0K        0B   100%    /kern
+
+# swapctl -l
+Device      1K-blocks     Used    Avail Capacity  Priority
+/dev/raid0b    262592        0   262592     0%    0
+# raidctl -s raid0
+Components:
+          component0: failed
+           /dev/wd1a: optimal
+No spares.
+component0 status is: failed.  Skipping label.
+Component label for /dev/wd1a:
+   Row: 0, Column: 1, Num Rows: 1, Num Columns: 2
+   Version: 2, Serial Number: 2004082401, Mod Counter: 65
+   Clean: No, Status: 0
+   sectPerSU: 128, SUsPerPU: 1, SUsPerRU: 1
+   Queue size: 100, blocksize: 512, numBlocks: 19540864
+   RAID Level: 1
+   Autoconfig: Yes
+   Root partition: Yes
+   Last configured as: raid0
+Parity status: DIRTY
+Reconstruction is 100% complete.
+Parity Re-write is 100% complete.
+Copyback is 100% complete.</programlisting>
+
+        <para>We will now add Disk0/wd0 as a component of the RAID. This will
+        destroy the original file system structure. On i386, the MBR disklabel
+        will be unaffected (remember we copied wd0's label to wd1 anyway) ,
+        therefore there is no need to "zero" Disk0/wd0. However, we need to
+        relabel Disk0/wd0 to have an identical NetBSD disklabel layout as
+        Disk1/wd1. Then we add Disk0/wd0 as "hot-spare" to the RAID set and
+        initiate the parity reconstruction for all RAID devices, effectively
+        bringing Disk0/wd0 into the RAID-1 set and "synching up" both
+        disks.</para>
+
+        <programlisting># disklabel -r wd1 &gt; /tmp/disklabel.wd1
+# disklabel -R -r wd0 /tmp/disklabel.wd1</programlisting>
+
+        <para>As a last-minute sanity check, you might want to use diff(1) to
+        ensure that the disklabels of Disk0/wd0 match Disk1/wd1. You should
+        also backup these files for reference in the event of an
+        emergency.</para>
+
+        <programlisting># disklabel -r wd0 &gt; /tmp/disklabel.wd0
+# disklabel -r wd1 &gt; /tmp/disklabel.wd1
+# diff /tmp/disklabel.wd0 /tmp/disklabel.wd1
+# fdisk /dev/rwd0 &gt; /tmp/fdisk.wd0
+# fdisk /dev/rwd1 &gt; /tmp/fdisk.wd1
+# diff /tmp/fdisk.wd0 /tmp/fdisk.wd1
+# mkdir /root/RFbackup
+# cp -v -p /tmp/disklabel.* /tmp/fdisk.* /root/RFbackup</programlisting>
+
+        <para>Once you are certain, add Disk0/wd0 as a spare component, and
+        start reconstruction:</para>
+
+        <programlisting># raidctl -v -a /dev/wd0a raid0
+/netbsd: Warning: truncating spare disk /dev/wd0a to 241254528 blocks
+# raidctl -v -s raid0
+Components:
+          component0: failed
+           /dev/wd1a: optimal
+Spares:
+           /dev/wd0a: spare
+[...snip...]
+# raidctl -F component0 raid0
+RECON: initiating reconstruction on col 0 -&gt; spare at col 2</programlisting>
+
+        <para>Depending on the speed of your hardware, the reconstruction time
+        will vary. You may wish to watch it on another terminal:</para>
+
+        <programlisting># raidctl -S raid0
+Reconstruction is 0% complete.
+Parity Re-write is 100% complete.
+Copyback is 100% complete.
+  17% |******                                 | ETA: 03:08 -</programlisting>
+
+        <para>After reconstruction, both disks should be “optimal”.</para>
+
+        <programlisting># tail -f /var/log/messages
+raid0: Reconstruction of disk at col 0 completed
+raid0: Recon time was 1290.625033 seconds, accumulated XOR time was 0 us (0.000000)
+raid0:  (start time 1093407069 sec 145393 usec, end time 1093408359 sec 770426 usec)
+raid0: Total head-sep stall count was 0
+raid0: 305318 recon event waits, 1 recon delays
+raid0: 1093407069060000 max exec ticks
+
+# raidctl -v -s raid0
+Components:
+           component0: spared
+           /dev/wd1a: optimal
+Spares:
+     /dev/wd0a: used_spare
+     [...snip...]</programlisting>
+
+        <para>When the reconstruction is finished we need to install the boot
+        loader on the Disk0/wd0. On i386, install the boot loader into
+        /dev/rwd0a:</para>
+
+        <programlisting># /usr/sbin/installboot -o timeout=2 -v /dev/rwd0a /usr/mdec/bootxx_ffsv2
+File system:         /dev/rwd1a
+File system type:    raw (blocksize 8192, needswap 1)
+Primary bootstrap:   /usr/mdec/bootxx_ffsv2
+Preserving 51 (0x33) bytes of the BPB</programlisting>
+
+        <para>And finally, reboot the machine one last time before
+        proceeding.</para>
+
+        <programlisting># shutdown -r now</programlisting>
+
+        <para>This is required to migrate Disk0/wd0 from status "used_spare"
+        as "Component0" to state "optimal".</para>
+
+        <para>At this point, edit you BIOS setting to ensure that both disks
+        are bootable and that your system runs fine regardless of which disk
+        is booted. Note that you can determine the disk the machine booted on
+        because of the timeout value.</para>
+
+        <para>At each boot, the following should appear in the NetBSD kernel
+        dmesg(8) :</para>
+
+        <programlisting>raid0: RAID Level 1
+raid0: Components: /dev/wd0a /dev/wd1a
+raid0: Total Sectors: 19540864 (9541 MB)
+boot device: raid0
+root on raid0a dumps on raid0b
+root file system type: ffs</programlisting>
+
+        <para>Once you are certain that both disks are bootable, verify the
+        RAID parity is clean after each reboot:</para>
+
+        <programlisting># raidctl -v -s raid0
+Components:
+          /dev/wd0a: optimal
+          /dev/wd1a: optimal
+No spares.
+[...snip...]
+Parity status: clean
+Reconstruction is 100% complete.
+Parity Re-write is 100% complete.
+Copyback is 100% complete.</programlisting>
+
+        <para>The last thing to do now is to test the kernel crash dumps so
+        that they work correctly and do not overwrite any important
+        filesystems (like the raid0e filesystem).</para>
+
+        <para>Press Ctrl+Alt+Esc to test the kernel crash dump. This will
+        invoke the kernel debugger. Type sync or reboot 0x104 and press Enter.
+        This will save the current kernel memory to the dump area (wd0b) for
+        further analysis. Most likely the offset and/or size of wd0b is wrong
+        if the system will not come up correctly after reboot (unable to mount
+        /home, corrupted super-blocks, etc). It is very important to test this
+        now, not when we have lots of valuable files in /home. One more time:
+        take a backup of all your files before following these
+        instructions!</para>
+
+        <para>Anyway, always remember to backup regularly your data.</para>
       </section>
 
       <section>
@@ -329,12 +916,12 @@ apm0: estimated 2h 26m</programlisting>
         <para>Other wise, the simplest way to do that is by creating the file
         /etc/myname, and put the hostname in.</para>
 
-        <programlisting>&gt; echo "MyHostname" &gt; /etc/myname</programlisting>
+        <programlisting># echo "MyHostname" &gt; /etc/myname</programlisting>
 
         <para>You might also need to add the hostname to your /etc/hosts file,
         to simplify name resolution :</para>
 
-        <programlisting>&gt; vi /etc/hosts</programlisting>
+        <programlisting># vi /etc/hosts</programlisting>
 
         <programlisting>::1 MyHostName localhost localhost.
 127.0.0.1 MyHostName localhost localhost.</programlisting>
@@ -342,7 +929,7 @@ apm0: estimated 2h 26m</programlisting>
         <para>Then you need to setup your network card (also called
         "interface"). Once again edit your rc.conf :</para>
 
-        <programlisting>&gt; vi /etc/rc.conf</programlisting>
+        <programlisting># vi /etc/rc.conf</programlisting>
 
         <para>If you are connected to a DHCP server, and want to use the
         network information it can provide :</para>
@@ -350,12 +937,12 @@ apm0: estimated 2h 26m</programlisting>
         <programlisting>dhclient=YES dhclient_flags=”&lt;interface&gt;”</programlisting>
 
         <para>&lt;interface&gt; means the network interface that appear in
-        dmesg. For me “ne0”.</para>
+        dmesg. For me “wm0”.</para>
 
         <para>Otherwise you can provide static network information by creating
         a specific file for ifconfig:</para>
 
-        <programlisting>&gt; vi /etc/ifconfig.&lt;interface&gt;</programlisting>
+        <programlisting># vi /etc/ifconfig.&lt;interface&gt;</programlisting>
 
         <para>and inside put the parameter you would put like using ifconfig
         on the command line :</para>
@@ -365,7 +952,7 @@ apm0: estimated 2h 26m</programlisting>
         <para>You can test your network configuration anytime by calling
         :</para>
 
-        <programlisting>&gt; ifconfig -a</programlisting>
+        <programlisting># ifconfig -a</programlisting>
 
         <para>Once you have activated the interface, you can go to another
         machine connected to the network and try to ping your new NetBSD
@@ -375,12 +962,12 @@ apm0: estimated 2h 26m</programlisting>
         define the gateway, if you dont have a DHCP server, or if it doesnt
         provide it to you. For example :</para>
 
-        <programlisting>&gt; echo "192.168.1.1" &gt; /etc/mygate</programlisting>
+        <programlisting># echo "192.168.1.1" &gt; /etc/mygate</programlisting>
 
         <para>Then you have to define the dns server to resolv internet names.
         Edit /etc/resolv.conf :</para>
 
-        <programlisting>&gt; vi /etc/resolv.conf</programlisting>
+        <programlisting># vi /etc/resolv.conf</programlisting>
 
         <para>and add the DNS server(s) you want to use to resolve internet
         names.</para>
@@ -395,32 +982,209 @@ apm0: estimated 2h 26m</programlisting>
       </section>
 
       <section>
+        <title>SSH Server (optional)</title>
+
+        <para>For a basic ssh server setup, we will use the ssh version
+        available in the base system. The only thing we need to do : turn it
+        on in /etc/rc.conf.</para>
+
+        <programlisting>sshd=YES</programlisting>
+
+        <para>And that's it. Now you can start it and test it, it will create
+        the required keys automatically :</para>
+
+        <programlisting>&gt; /etc/rc.d/sshd start</programlisting>
+
+        <para>To tune a bit more your configuration, you need to know about
+        ssh. Just RTFM ;-)</para>
+
+        <para>But Anyway now you can continue to setup your computer remotely
+        if needed.</para>
+      </section>
+
+      <section>
+        <title>NIS Setup and NFS /home (optional)</title>
+
+        <section>
+          <title>NIS / NFS Server</title>
+
+          <para>NIS used to be called the `Yellow Pages', or YP for short.
+          Because of trademarks it had to be renamed, but the programs are all
+          still prefixed with `yp'.</para>
+
+          <para>Before doing anything with NFS, ensure that your kernel has
+          support for NFS sharing. This means your server must have NFS kernel
+          support enabled. This is the case for GENERIC Kernels. For custom
+          Kernels, the following lines must be in the kernel file:</para>
+
+          <programlisting>file-system     NFS             # Network File System client</programlisting>
+
+          <para>Your server also must have the following option:</para>
+
+          <programlisting>options         NFSSERVER       # Network File System server</programlisting>
+
+          <para>The first thing we should do is decide on a NIS domain name.
+          This has nothing to do with your machine's Internet domain name. It
+          is just a unique name that is used to identify machines in the same
+          NIS block.The domainname is set (as root) using the domainname(1)
+          program,</para>
+
+          <programlisting># domainname olympus</programlisting>
+
+          <para>Or it can be set in the /etc/mydomain file :</para>
+
+          <programlisting># echo "olympus" &gt; /etc/mydomain</programlisting>
+
+          <para>Alternatively, in most BSD systems, it can be set in
+          /etc/rc.conf under the variable `domainname'.</para>
+
+          <programlisting>domainname="olympus"</programlisting>
+
+          <para>After this, we must initialise all files needed for the server
+          to do its work. For this, we use the ypinit utility.</para>
+
+          <programlisting># ypinit -m</programlisting>
+
+          <para>The -m means we are creating a master server. On more complex
+          networks, you can even want slave servers. The tool will ask you for
+          a list of YP servers to bind to. Since we're only using one server,
+          just press Enter (make sure your own server's internal address is in
+          the list).</para>
+
+          <para>Before we run `make' in /var/yp, as the tool says, we must
+          enable the NIS deamons: rpcbind, ypserv and ypbind (in that
+          order).</para>
+
+          <programlisting># vi /etc/rc.conf
+[...snip...]
+rpcbind=YES
+ypserv=YES
+ypbind=YES
+[...snip...]
+:q
+
+# /etc/rc.d/rpcbind start
+# /etc/rc.d/ypserv start
+# /etc/rc.d/ypbind start</programlisting>
+
+          <para>After that, we can run `make' in /var/yp.</para>
+
+          <programlisting># cd /var/yp &amp;&amp; make</programlisting>
+
+          <para>To test if your setup is working, try yptest. It should spew
+          out the passwd file among others, so don't panic ;)</para>
+
+          <programlisting># yptest</programlisting>
+
+          <para>Now on for the NFS part, lets share /home !</para>
+
+          <para>TODO</para>
+        </section>
+
+        <section>
+          <title>NIS / NFS Client</title>
+
+          <para>Before connecting to a NFS Server, ensure that your kernel has
+          support for NFS sharing. This means your clients must have NFS
+          kernel support enabled. This is the case for GENERIC Kernels. For
+          custom Kernels, the following lines must be in the kernel
+          file:</para>
+
+          <programlisting>file-system     NFS             # Network File System client</programlisting>
+
+          <para>To get stuff working along with your new NIS server, you need
+          to enable the rpcbind and ypbind daemons.</para>
+
+          <programlisting># vi /etc/rc.conf
+[...snip...]
+rpcbind=YES
+ypbind=YES
+[...snip...]
+:q
+
+# /etc/rc.d/rpcbind start
+# /etc/rc.d/ypbind start</programlisting>
+
+          <para>After that, you can use ypinit:</para>
+
+          <programlisting># ypinit -c</programlisting>
+
+          <para>Then, add your NIS server's address to the list. To test if
+          everything is working, use yptest. It should spew out the passwd
+          file among others, so don't panic ;). Note that ypbind will HANG if
+          it can't find the server!</para>
+
+          <programlisting># yptest</programlisting>
+
+          <para>If everything is working, you can test some logins. You might
+          also need to add nis to some /etc/nsswitch.conf lines ;)</para>
+
+          <para>A disadvantage of NIS is that it is not very secure. If
+          security is a big concern, have a look at LDAP and NIS+, which are
+          more complex directory services. For networks where security isn't
+          that important (like most home networks), NIS will do. It is also
+          much easier to set up than NIS+ or LDAP.</para>
+
+          <para>On NetBSD, the NIS server consults /etc/hosts.allow and
+          /etc/hosts.deny to determine if the requesting host is allowed to
+          access the NIS directory. This can help you in securing NIS a
+          little.</para>
+
+          <para>You can as an example disallow all hosts to connect to your
+          NIS and NFS inside your /etc/hosts.deny :</para>
+
+          <programlisting>ypserv: ALL
+rpcbind: ALL
+ypbind: ALL
+nfsd: ALL</programlisting>
+
+          <para>And allow you LAN hosts in /etc/hosts.allow.</para>
+
+          <para>Another solution might be to setup a VPN and enable NIS in it
+          only...</para>
+
+          <para>Well, you are now ready to go to the NFS part : accessing
+          /home !</para>
+
+          <para>TODO</para>
+
+          <para></para>
+
+          <para></para>
+        </section>
+      </section>
+
+      <section>
         <title>Mail Setup</title>
 
-        <para>Now that you know what this is about, you can turn on or off the
-        part of the system you want to use. For example I dont use sendmail,
-        so I can remove it from /etc/rc.conf by editing it</para>
+        <para>NB : Since NetBSD 4.0, there is no need to tune your mail
+        system, as postfix is the "base" and only MTA available out of the
+        box. You just need to setup your hostname as explicited before for it
+        to run.</para>
 
-        <programlisting>&gt; vi /etc/rc.conf</programlisting>
+        <section>
+          <title>For NetBSD 3.X</title>
 
-        <para>and adding this line</para>
+          <para>Now you can turn on or off the part of the system you want to
+          use. For example NetBSD doesnt maintain sendmail in the base system
+          anymore, so I would remove it from /etc/rc.conf by editing it</para>
 
-        <programlisting>sendmail=NO</programlisting>
+          <programlisting>&gt; vi /etc/rc.conf</programlisting>
 
-        <para>but I might use postfix from time to time just for smtp, and
-        also to get all the maintenance messages sent to root. You first need
-        to change your MTA (Mail Transport Agent) :</para>
+          <para>and adding this line</para>
 
-        <para></para>
+          <programlisting>sendmail=NO</programlisting>
 
-        <programlisting>&gt; vi /etc/mailer.conf</programlisting>
+          <para>but I might use postfix from time to time just for smtp, and
+          also to get all the maintenance messages sent to root. We need to
+          change your MTA (Mail Transport Agent) :</para>
 
-        <para>Then comment the sendmail lines, and uncomment the postfix
-        lines.</para>
+          <programlisting>&gt; vi /etc/mailer.conf</programlisting>
 
-        <para></para>
+          <para>Then comment the sendmail lines, and uncomment the postfix
+          lines.</para>
 
-        <programlisting>[...]
+          <programlisting>[...]
 
 #sendmail    /usr/libexec/sendmail/sendmail
 #send-mail   /usr/libexec/sendmail/sendmail
@@ -438,10 +1202,13 @@ newaliases   /usr/libexec/postfix/sendmail
 
 [...]</programlisting>
 
-        <para>Now back to your <literal>/etc/rc.conf</literal>, and add
-        :</para>
+          <para>Now back to your <literal>/etc/rc.conf</literal>, and add
+          :</para>
 
-        <programlisting>postfix=YES</programlisting>
+          <programlisting>postfix=YES</programlisting>
+
+          <para>Everything should now be up and running ;)</para>
+        </section>
       </section>
 
       <section>
@@ -452,15 +1219,15 @@ newaliases   /usr/libexec/postfix/sendmail
         idea, as one little mistake can destroy everything...</para>
 
         <para>First create your new group dedicated to your power user ( I use
-        tghe username for that) :</para>
+        the username for that) :</para>
 
-        <programlisting>groupadd &lt;username&gt;</programlisting>
+        <programlisting># groupadd &lt;username&gt;</programlisting>
 
         <para>Now you can add a new user with his own group, who will be able
         to su to root and define his password:</para>
 
-        <programlisting>&gt; useradd -G wheel -g &lt;username&gt; -s /bin/ksh -m &lt;username&gt;
-&gt; passwd &lt;username&gt;</programlisting>
+        <programlisting># useradd -G wheel -g &lt;username&gt; -s /bin/ksh -m &lt;username&gt;
+# passwd &lt;username&gt;</programlisting>
 
         <para>Then exit and login again as the new user. If everything works
         fine, you can call "su" to authenticate as root again to continue to
@@ -471,16 +1238,18 @@ newaliases   /usr/libexec/postfix/sendmail
         <title>Power User -&gt; Setup SSH client</title>
 
         <para>On many applications and systems nowadays, you need to be
-        identify by an SSL Key.</para>
+        identify by an SSL Key. this will also enable you to connect to your
+        ssh server if you have on setup already.</para>
 
         <para>Let's start by creating one RSA key ( as alex, not as root
         ):</para>
 
-        <programlisting>&gt; ssh-keygen -t rsa</programlisting>
+        <programlisting>$ ssh-keygen</programlisting>
 
         <para>I would advise to setup a passphrase and store the key in the
         default location ( .ssh subdirectory ). Later on we will setup the
-        user session to run the ssh-agent automatically at startup.</para>
+        user session to run the ssh-agent automatically at startup. This way
+        your key will be used to access remote systems.</para>
       </section>
     </section>
 
@@ -502,7 +1271,7 @@ newaliases   /usr/libexec/postfix/sendmail
 
         <para>First you have to edit /etc/wscons.conf :</para>
 
-        <para><literal>&gt; vi /etc/wscons.conf</literal></para>
+        <programlisting>$ vi /etc/wscons.conf</programlisting>
 
         <para>and add the corresponding line at the right place :</para>
 
@@ -517,7 +1286,7 @@ screen 7 - -</programlisting>
         <para>then to be able to log in those terminals, you have to edit
         <literal>/etc/ttys</literal> :</para>
 
-        <programlisting>&gt; vi /etc/ttys</programlisting>
+        <programlisting>$ vi /etc/ttys</programlisting>
 
         <para>Usually I change console to <literal>off</literal>, and I keep
         ttyE0 to <literal>off</literal> not to mix console output and shell,
@@ -539,13 +1308,15 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
         <para>Also If you plan to use a mouse on the console, remember to
         create a configuration file for the wsmoused deamon:</para>
 
-        <programlisting>&gt; vi /etc/wsmoused.conf</programlisting>
+        <programlisting>$ vi /etc/wsmoused.conf</programlisting>
 
         <para>with the content :</para>
 
         <programlisting>xconsole = 7;</programlisting>
 
         <para>Just reboot and give it a try :-)</para>
+
+        <para>Currently it doesnt seem to work while X is using it...</para>
       </section>
 
       <section>
@@ -553,7 +1324,7 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
 
         <para>Do you want to setup X ? just run :</para>
 
-        <programlisting>&gt; xf86cfg</programlisting>
+        <programlisting># xf86cfg</programlisting>
 
         <para>It should detect your hardware, and setup a default
         configuration for you. After that you can customize your X
@@ -561,18 +1332,18 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
 
         <para>Then exit and save the configuration. Now test it :</para>
 
-        <programlisting>&gt; startx</programlisting>
+        <programlisting># startx</programlisting>
 
         <para>The server X will run with all the default settings. If you want
         to customize the setup, copy xinitrc to your local folder :</para>
 
-        <programlisting>&gt; cp /etc/X11/xinit/xinitrc ~/.xinitrc</programlisting>
+        <programlisting># cp /etc/X11/xinit/xinitrc ~/.xinitrc</programlisting>
 
         <para>If everything runs fine, you can now setup XDM. First be sure of
         the terminal you want to run X on (careful ttys start at 0 but vt
         starts at 1) :</para>
 
-        <programlisting>&gt; vi /etc/X11/xdm/Xservers</programlisting>
+        <programlisting># vi /etc/X11/xdm/Xservers</programlisting>
 
         <programlisting>:0 local /usr/X11R6/bin/X vt08 -nolisten tcp</programlisting>
 
@@ -580,7 +1351,7 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
         configuration</emphasis>, you need to turn it on in your
         <literal>/etc/rc.conf</literal> :</para>
 
-        <programlisting>&gt; vi /etc/rc.conf</programlisting>
+        <programlisting># vi /etc/rc.conf</programlisting>
 
         <programlisting>xdm=YES</programlisting>
 
@@ -611,7 +1382,7 @@ GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
 
         <para>And remove the HTTP headers...</para>
 
-        <programlisting>&gt; tail -n 3 sysupdate_dl &gt; sysupdate
+        <programlisting>&gt; tail -n +4 sysupdate_dl &gt; sysupdate
 &gt; chmod u+x sysupdate</programlisting>
 
         <para>Using this script you can quite easily download and update via
@@ -830,7 +1601,7 @@ export CLASSPATH</programlisting>
   </section>
 
   <section>
-    <title>Second Boot : Installing Useful Software</title>
+    <title>Second Step : Installing Useful Software</title>
 
     <section>
       <title>Install Common Console Software</title>
