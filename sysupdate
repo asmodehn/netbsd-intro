@@ -13,19 +13,20 @@ set -e
 #REVIEW the menu /vs/ command line script structure...
 
 #Setup for command line use (without menu -> later):
-CVSROOT="anoncvs@anoncvs.NetBSD.org:/cvsroot"
+CVSROOT="anoncvs@anoncvs.fr.NetBSD.org:/pub/NetBSD-CVS"
 CVS_RSH="ssh"
 CVS_COMP_LVL=3
 # 1) CVS Option for Tracked Branch ("current" for current branch)
 #relCVS="current"
-relCVS="netbsd-3"
+relCVS="netbsd-4"
 #pkgrelCVS="current"
-pkgrelCVS="pkgsrc-2006Q2"
+pkgrelCVS="pkgsrc-2007Q1"
+tooldir="tooldir.sysupdate"
 
 #Beware : The menu will use these as default values for now...
 
 #Build options:
-loglevel="-N 1"
+loglevel="-N 2"
 update="-u"
 
 #Global variables
@@ -92,6 +93,8 @@ fi
 if [ -d /usr/pkgsrc ]
 then
 set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd | tee /root/sysupdate_pkgsrc.log
+#set -x && cd /usr/pkgsrc/wip && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd | tee /root/sysupdate_pkgsrc_wip.log
+cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
 #comment the next 3 lines if you dont want to install the audit package
 #dont forget to add it in your pkgchk.conf
 echo "Updating the vulnerability list..."
@@ -101,6 +104,8 @@ echo "Checking if installed packes are older than the downloaded ones..."
 /usr/pkg/sbin/pkg_chk -a -q 
 else
 set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA pkgsrc | tee /root/sysupdate_pkgsrc.log
+#set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA wip | tee /root/sysupdate_pkgsrc_wip.log
+cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
 fi
 set +x
 
@@ -151,23 +156,7 @@ fi
 cd /usr/src
 #TODO Prompt for update or not
 set -x
-./build.sh $update $loglevel tools | tee /root/sysupdate_tools.log
-#
-#Old Kernel compil, for release < 2.0
-#cd /usr/src/sys/arch/i386/conf
-#if [ ! -z $KERNAME ] && [ -r $KERNAME ]
-#then
-#echo Compiling Kernel : $KERNAME
-#/usr/sbin/config $KERNAME && \
-#cd /usr/src/sys/arch/i386/compile/$KERNAME && \
-#make clean && \
-#make depend && \
-#make
-#else
-#echo "No Config File found for this Kernel. Exiting..."
-#fi
-#
-./build.sh $update $loglevel kernel=$KERNAME | tee /root/sysupdate_kernel.log
+./build.sh $update $loglevel -T $tooldir tools kernel=$KERNAME | tee /root/sysupdate_kernel.log
 set +x
 if [ $menu -eq 0 ] ;then mainmenu; fi
 return $?
@@ -179,9 +168,9 @@ cd /usr/src
 set -x
 if [ -d /usr/xsrc ]
 then
-./build.sh -x $update $loglevel distribution | tee /root/sysupdate_userland_X.log
+./build.sh -x $update $loglevel -T $tooldir distribution | tee /root/sysupdate_userland_X.log
 else
-./build.sh $update $loglevel distribution | tee /root/sysupdate_userland.log
+./build.sh $update $loglevel -T $tooldir distribution | tee /root/sysupdate_userland.log
 fi
 set +x
 echo "Userland build Done. Going on with installation..."
@@ -209,7 +198,7 @@ read KERNAME
 done
 cd /usr/src/sys/arch/i386/compile/obj/$KERNAME && \
 make install && \
-shutdown -r now
+shutdown -r +5
 if [ $menu -eq 0 ] ;then mainmenu; fi
 return $?
 }
