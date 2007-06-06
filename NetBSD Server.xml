@@ -147,6 +147,9 @@
 
     <para>to your /etc/mk.conf.</para>
 
+    <para>However I usually prefer symbolic linkage to keep in mind where the
+    file actually comes from...</para>
+
     <para></para>
   </section>
 
@@ -242,6 +245,9 @@
         Deny from all
     &lt;/LimitExcept&gt;
 &lt;/Directory&gt;</programlisting>
+
+    <para>Note : Since Apahce 2.2, you can just uncomment the line which
+    include the user directory config.</para>
 
     <para>If you wish to start the Apache Webserver at boottime, you need to
     add apache=yes to your /etc/rc.conf.</para>

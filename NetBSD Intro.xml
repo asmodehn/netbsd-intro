@@ -41,8 +41,7 @@
 
         <tbody>
           <row>
-            <entry>Safe Hardware setup with RAID 1, APC UPS ( and Xen3 maybe ?
-            )</entry>
+            <entry>Safe Hardware setup with RAID 1, APC UPS</entry>
 
             <entry>Easy and versatile Hardware setup</entry>
           </row>
@@ -67,7 +66,7 @@
           </row>
 
           <row>
-            <entry>IPSec setup, SSH server, HTTP server (Apache), FTP
+            <entry>VPN setup, SSH server, HTTP server (Apache), FTP
             server(proFTPd), etc.</entry>
 
             <entry>Usefull client Apps (OpenOffice, etc.)</entry>
@@ -340,10 +339,22 @@ apm0: estimated 2h 26m</programlisting>
           grab the UPS instead of ugen by specifying each parameter you need.
           So even if this should be done in an early stage, you need to fetch
           the kernel sources first in order to build your kernel to recognise
-          the UPS correctly, and download the packages needed to use
-          it.</para>
+          the UPS correctly, and download the packages needed to use it. So
+          irst rebuild your kernel, and grab pkgrsc ; then you will need
+          sysutils/apcupsd :</para>
 
-          <para>TODO</para>
+          <programlisting># cd /usr/pkgsrc/sysutils/apcupsd &amp;&amp; make update
+# cd /etc/rc.d/ &amp;&amp; ln -s /usr/pkg/share/examples/rc.d/apcupsd</programlisting>
+
+          <para>Now you can start the daemon and verify everything is
+          correctly setup</para>
+
+          <programlisting># /etc/rc.d/apcupsd start
+# cat /var/log/apcupsd.events</programlisting>
+
+          <para>If some error appears in the event log, just follow the
+          instructions to fix it and take time tocorrectly set the UPS
+          up.</para>
         </section>
       </section>
 
@@ -1084,53 +1095,13 @@ ypbind=YES
 
           <programlisting># cd /var/yp &amp;&amp; make</programlisting>
 
+          <para>You will have to do that everytime you want to rebuild the NIS
+          mapfile to match your server's password files.</para>
+
           <para>To test if your setup is working, try yptest. It should spew
           out the passwd file among others, so don't panic ;)</para>
 
           <programlisting># yptest</programlisting>
-
-          <para>Now on for the NFS part, lets share /home !</para>
-
-          <para>TODO</para>
-        </section>
-
-        <section>
-          <title>NIS / NFS Client</title>
-
-          <para>Before connecting to a NFS Server, ensure that your kernel has
-          support for NFS sharing. This means your clients must have NFS
-          kernel support enabled. This is the case for GENERIC Kernels. For
-          custom Kernels, the following lines must be in the kernel
-          file:</para>
-
-          <programlisting>file-system     NFS             # Network File System client</programlisting>
-
-          <para>To get stuff working along with your new NIS server, you need
-          to enable the rpcbind and ypbind daemons.</para>
-
-          <programlisting># vi /etc/rc.conf
-[...snip...]
-rpcbind=YES
-ypbind=YES
-[...snip...]
-:q
-
-# /etc/rc.d/rpcbind start
-# /etc/rc.d/ypbind start</programlisting>
-
-          <para>After that, you can use ypinit:</para>
-
-          <programlisting># ypinit -c</programlisting>
-
-          <para>Then, add your NIS server's address to the list. To test if
-          everything is working, use yptest. It should spew out the passwd
-          file among others, so don't panic ;). Note that ypbind will HANG if
-          it can't find the server!</para>
-
-          <programlisting># yptest</programlisting>
-
-          <para>If everything is working, you can test some logins. You might
-          also need to add nis to some /etc/nsswitch.conf lines ;)</para>
 
           <para>A disadvantage of NIS is that it is not very secure. If
           security is a big concern, have a look at LDAP and NIS+, which are
@@ -1151,19 +1122,142 @@ rpcbind: ALL
 ypbind: ALL
 nfsd: ALL</programlisting>
 
-          <para>And allow you LAN hosts in /etc/hosts.allow.</para>
+          <para>And allow you LAN hosts in /etc/hosts.allow :</para>
 
-          <para>Another solution might be to setup a VPN and enable NIS in it
-          only...</para>
+          <programlisting>ypserv: localhost myhost1 myhost2
+rpcbind: localhost myhost1 myhost2
+ypbind: localhost myhost1 myhost2
+nfsd: localhost myhost1 myhost2</programlisting>
+
+          <para>Another solution might be to setup a VPN and enable NIS inside
+          it only...</para>
+
+          <para>Now on for the NFS part, lets share /home !</para>
+
+          <para></para>
+
+          <para></para>
+
+          <para>Setting up NFS is a piece of cake. Just enter all directories
+          you wish to export in /etc/exports and start the NFS daemon. In our
+          example we would have: /home -network 192.168.0.0 -mask 255.255.0.0
+          -maproot=root This exports /home only on the LAN 192.168.x.x. The
+          maproot line is needed, because otherwise the client's root will not
+          have superuser access. Now, start the mount daemon and the NFS
+          deamons (mountd and nfsd) as root on your server, in that order. For
+          that type: root@mars# /etc/rc.d/rpcbind start root@mars#
+          /etc/rc.d/mountd start root@mars# /etc/rc.d/nfsd start root@mars#
+          /etc/rc.d/nfslocking start If you wish to start the NFS server on
+          boot, add following lines to your /etc/rc.conf rpcbind=yes
+          mountd=yes nfs_server=yes lockd=yes statd=yes Now, try to mount from
+          the client and type: root@mars # mount -t nfs earth:/home /home
+          Voila, you're done. Just add all NFS volumes you want to mount to
+          your /etc/fstab like this earth:/home /home nfs rw and have them
+          mounted at system startup. NOTE: I had much trouble with NFS which
+          was caused by UDP packet fragmentation. This made all writes
+          extremely slow (and other outgoing network traffic as well!) while
+          reads were at an acceptable speed. To solve this, I added the
+          (undocumented?) `tcp' option to fstab to mount NFS over TCP. You'll
+          probably also need to add nfsd_flags='-t' to rc.conf so the NFS
+          server serves up TCP exports. If you just want to run NFS, you need
+          to run the following daemons on your server: rpcbind, mountd, nfsd
+          (in that order)</para>
+
+          <para></para>
+
+          <para></para>
+        </section>
+
+        <section>
+          <title>NIS / NFS Client</title>
+
+          <para>Before connecting to a NFS Server, ensure that your kernel has
+          support for NFS sharing. This means your clients must have NFS
+          kernel support enabled. This is the case for GENERIC Kernels. For
+          custom Kernels, the following lines must be in the kernel
+          file:</para>
+
+          <programlisting>file-system     NFS             # Network File System client</programlisting>
+
+          <para>To get stuff working along with your new NIS server, you need
+          to enable the rpcbind and ypbind daemons.</para>
+
+          <programlisting># vi /etc/rc.conf
+[...snip...]
+domainname="olympus"
+rpcbind=YES
+ypbind=YES
+[...snip...]
+:wq
+
+# /etc/rc.d/rpcbind start
+# /etc/rc.d/ypbind start</programlisting>
+
+          <para>After that, you can use ypinit:</para>
+
+          <programlisting># ypinit -c</programlisting>
+
+          <para>Then, add your NIS server's address to the list. To test if
+          everything is working, use yptest. It should spew out the passwd
+          file among others, so don't panic ;). Note that ypbind will HANG if
+          it can't find the server!</para>
+
+          <programlisting># yptest</programlisting>
+
+          <para>If everything is working, you can test some logins. You might
+          also need to change a bit your /etc/nsswitch.conf :</para>
+
+          <programlisting># These are the defaults in libc
+# changed to use nis for passwds and groups
+#
+group:          nis [notfound=return] files
+#group_compat:   nis
+hosts:          files dns
+netgroup:       files [notfound=return] nis
+networks:       files
+passwd:         nis [notfound=return] files
+#passwd_compat:  nis
+shells:         files</programlisting>
+
+          <para>This is the easiest way, as you wont have to modify your
+          /etc/passwd file, but all the user on the server will be transferred
+          to nis, you will not be able to keep some locals and some on nis
+          only... this is fine if you NIS setup is at early stage, if you want
+          only one user list for all your machines, and if all your existing
+          uids match on hte server and the client, which is the case when both
+          server and client are running netbsd and you dont have to maintain
+          lots of users here and there... Well in the last case Have a look at
+          LDAP it is more appropriate after all, and more secure.</para>
 
           <para>Well, you are now ready to go to the NFS part : accessing
           /home !</para>
 
-          <para>TODO</para>
+          <para>TODO. Remember to test ssh, was a pain to get
+          working...</para>
 
           <para></para>
 
           <para></para>
+        </section>
+
+        <section>
+          <title>Notes on NIS/NFS</title>
+
+          <para>The NIS server should be a client of itself.</para>
+
+          <para>If you plan to allow the user to change their passwd, enable
+          the yppasswdd in /etc/rc.conf on the server only. Using the usual
+          passwd will change the nis password, detected by PAM ;)</para>
+
+          <para>User management still works the same way, however, to
+          propagate changes from local /etc/passwd on the nis server to the
+          NIS map files, you will have to "cd /var/yp &amp;&amp; make" as root
+          everytime a refresh is needed.</para>
+
+          <para>Remember to test NIS along wth your ssh setup if you have one,
+          which I advise, to make sure your logins are fines our keys here and
+          there, especially if you are sharing your /home with keys in
+          /home/*/.ssh. You could run into troubles, so be careful...</para>
         </section>
       </section>
 
@@ -1245,6 +1339,20 @@ newaliases   /usr/libexec/postfix/sendmail
         <para>Then exit and login again as the new user. If everything works
         fine, you can call "su" to authenticate as root again to continue to
         setup your OS.</para>
+
+        <para>If you think you will have to manage many users, it is a good
+        solution to edit your /etc/usermgmt.conf file to match your needs.
+        Mine looks like this :</para>
+
+        <programlisting>group        =uid
+base_dir     /home
+skel_dir     /etc/skel
+shell        /bin/ksh
+class
+homeperm     00
+inactive     Null (unset)
+expire       Null (unset)
+preserve     true</programlisting>
       </section>
 
       <section>
@@ -1390,13 +1498,13 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
         <para>To retrieve it from your machine, maybe the simplest way is just
         to use telnet :</para>
 
-        <programlisting>&gt; telnet download.gna.org 80 &gt; sysupdate_dl
+        <programlisting># telnet download.gna.org 80 &gt; sysupdate_dl
 GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
 
         <para>And remove the HTTP headers...</para>
 
-        <programlisting>&gt; tail -n +4 sysupdate_dl &gt; sysupdate
-&gt; chmod u+x sysupdate</programlisting>
+        <programlisting># tail -n +4 sysupdate_dl &gt; sysupdate
+# chmod u+x sysupdate</programlisting>
 
         <para>Using this script you can quite easily download and update via
         CVS the source for the OS (/usr/src) for the X server (/usr/xsrc) or
@@ -1407,7 +1515,20 @@ GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
 
         <para>For the next step, just checkout pkgsrc like that :</para>
 
-        <programlisting>&gt; ./sysupdate pkgsrc</programlisting>
+        <programlisting># ./sysupdate pkgsrc</programlisting>
+
+        <para>Once you downloaded it, you should bootstrap it to be sure
+        everything is setup correctly. Follow the instruction in the README
+        :</para>
+
+        <programlisting># more /usr/pkgsrc/bootstrap/README</programlisting>
+
+        <para>Therefore, on a usual NetBSD system :</para>
+
+        <programlisting># cd /usr/pkgsrc/bootstrap &amp;&amp; ./bootstrap
+# cp /usr/pkgsrc/bootstrap/work/mk.conf.example /usr/pkg/etc/mk.conf</programlisting>
+
+        <para>Everything is now ready to install your first packages ;)</para>
       </section>
 
       <section>
@@ -1434,7 +1555,7 @@ GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
           </listitem>
 
           <listitem>
-            <para>security/auditpackages : install it to know if the package
+            <para>security/audit-packages : install it to know if the package
             you are trying to install has a security flaw in it.</para>
           </listitem>
 
@@ -1468,6 +1589,10 @@ GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
           </listitem>
 
           <listitem>
+            <para>net/lftp : a great unix ftp client.</para>
+          </listitem>
+
+          <listitem>
             <para>www/links : text based web browser, cause you always need to
             browse the web to get informations.</para>
           </listitem>
@@ -1481,13 +1606,57 @@ GET http://download.gna.org/netbsd-intro/sysupdate</programlisting>
             <para>security/sudo : to run specific commands as another user,
             without his password.</para>
           </listitem>
+
+          <listitem>
+            <para>editors/easyedit : you can also make it the default editor
+            of a user by editing ~/.cshrc and ~/.profile</para>
+          </listitem>
+
+          <listitem>
+            <para>editors/vim : much more advanced than vi. If you install
+            gvim for to have a gtk GUI, don't install it, as the gvim package
+            build also vim for console.</para>
+          </listitem>
         </orderedlist>
 
-        <para>To install a package is pretty easy. For example for pkg_install
+        <para>To install a package is pretty easy. Lets start with pkg_install
         :</para>
 
-        <programlisting>&gt; cd /usr/pkgsrc/pkgtools/pkg_install
-&gt; make install</programlisting>
+        <programlisting># cd /usr/pkgsrc/pkgtools/pkg_install
+# make update</programlisting>
+
+        <para>NB : update instead of install will clean your directory
+        automatically after install, and also update your dependencies if
+        needed.</para>
+
+        <para>Therefore to install all those packages we can run :</para>
+
+        <programlisting># cd /usr/pkgsrc/devel/cpuflags &amp;&amp; make update
+# vi /etc/mk.conf
+ .sinclude "/usr/pkg/share/mk/cpuflags.mk"
+
+:q
+# cd /usr/pkgsrc/shells/standalone-tcsh &amp;&amp; make update
+# cd /usr/pkgsrc/security/auditpackages &amp;&amp; make update
+# /usr/pkg/sbin/download-vulnerability-list
+# cd /usr/pkgsrc/pkgtools/pkgfind &amp;&amp; make update
+# cd /usr/pkgsrc/pkgtools/pkgclean &amp;&amp; make update
+# cd /usr/pkgsrc/pkgtools/pkg_chk &amp;&amp; make update
+# cd /usr/pkgsrc/pkgtools/pkg_select &amp;&amp; make update
+# cd /usr/pkgsrc/pkgtools/pkg_tarup &amp;&amp; make update
+# cd /usr/pkgsrc/net/wget &amp;&amp; make update
+# cd /usr/pkgsrc/net/lftp &amp;&amp; make update
+# cd /usr/pkgsrc/www/links &amp;&amp; make update
+# cd /usr/pkgsrc/misc/screen &amp;&amp; make update
+# cd /usr/pkgsrc/security/sudo &amp;&amp; make update
+# cd /usr/pkgsrc/editors/easyedit &amp;&amp; make update
+# cd /usr/pkgsrc/editors/vim &amp;&amp; make update</programlisting>
+
+        <para>Hint : When configuring /etc/mk.conf for pkgsrc specific
+        variables, you can use :</para>
+
+        <programlisting>.ifdef BSD_PKG_MK # for pkgsrc builds only
+.endif</programlisting>
       </section>
 
       <section>
@@ -1626,17 +1795,6 @@ export CLASSPATH</programlisting>
 
       <orderedlist>
         <listitem>
-          <para>editors/easyedit : you can also make it the default editor of
-          a user by editing ~/.cshrc and ~/.profile</para>
-        </listitem>
-
-        <listitem>
-          <para>editors/vim : much more advanced than vi. If you install gvim
-          for to have a gtk GUI, don't install it, as the gvim package build
-          also vim for console.</para>
-        </listitem>
-
-        <listitem>
           <para>mail/fetchmail : to fetch mail from an external mail
           server</para>
         </listitem>
@@ -1654,10 +1812,6 @@ export CLASSPATH</programlisting>
 
         <listitem>
           <para>chat/bitchx : to chat on irc</para>
-        </listitem>
-
-        <listitem>
-          <para>net/lftp : an great unix ftp client</para>
         </listitem>
 
         <listitem>
