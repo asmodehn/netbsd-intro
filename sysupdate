@@ -179,7 +179,7 @@ echo "Take care of the instructions in the ouput!"
 echo "Press [Ctrl-C] to stop if there is any error."
 echo "Otherwise press Enter to continue..."; read pause
 set -x
-./build.sh $update $loglevel install=/ 
+./build.sh $update $loglevel -T $tooldir install=/ 
 set +x
 echo "Everything went fine ? So go on with /etc merging..."
 echo "Press Enter to continue or [Ctrl-C] otherwise..."; read pause
