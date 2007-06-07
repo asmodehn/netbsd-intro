@@ -207,7 +207,7 @@ mergeetc()
 {
 if [ -e /usr/sbin/etcupdate ]
 then
-/usr/sbin/etcupdate -al -s /usr/src/etc
+/usr/sbin/etcupdate -al -s /usr/src
 else
 echo " etcupdate : Not found."
 fi
