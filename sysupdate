@@ -38,13 +38,13 @@ prepareCVS()
 {
 #if using the menu, then prompt for cvsroot and cvsrsh
 if [ $menu -eq 0 ] ; then
-echo -n "Enter your CVSROOT [$CVSROOT] : "
-read new_CVSROOT; if [ X$new_CVSROOT != X ] ; then CVSROOT=$new_CVSROOT; fi
-echo -n "Enter your CVS_RSH [$CVS_RSH] : "
-read new_CVS_RSH; if [ X$new_CVS_RSH != X ]; then CVS_RSH=$new_CVS_RSH; fi
+  echo -n "Enter your CVSROOT [$CVSROOT] : "
+  read new_CVSROOT; if [ X$new_CVSROOT != X ] ; then CVSROOT=$new_CVSROOT; fi
+  echo -n "Enter your CVS_RSH [$CVS_RSH] : "
+  read new_CVS_RSH; if [ X$new_CVS_RSH != X ]; then CVS_RSH=$new_CVS_RSH; fi
 else
-echo cvsroot : $CVSROOT
-echo protocol : $CVS_RSH
+  echo cvsroot : $CVSROOT
+  echo protocol : $CVS_RSH
 fi
 return $?
 }
@@ -53,22 +53,22 @@ updatesrc()
 prepareCVS
 #if using menu, then prompt for branch
 if [ $menu -eq 0 ] ; then
-echo -n "Enter your tracked branch [$relCVS] : "
-read new_relCVS; if [ X$new_relCVS != X ]; then relCVS=$new_relCVS; fi
+  echo -n "Enter your tracked branch [$relCVS] : "
+  read new_relCVS; if [ X$new_relCVS != X ]; then relCVS=$new_relCVS; fi
 else
-echo "Tracked branch : $relCVS"
+  echo "Tracked branch : $relCVS"
 fi
 #setting the CVS argument
 relCVSarg=""
 if [ X$relCVS != Xcurrent ]
 then
-relCVSarg=-r$relCVS
+  relCVSarg=-r$relCVS
 fi
 if [ -d /usr/src ]
 then
-set -x && cd /usr/src && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd | tee /root/sysupdate_src.log
+  set -x && cd /usr/src && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd | tee /root/sysupdate_src.log
 else
-set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA src | tee /root/sysupdate_src.log
+  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA src | tee /root/sysupdate_src.log
 fi
 set +x
 if [ $menu -eq 0 ] ;then mainmenu; fi
@@ -79,34 +79,39 @@ updatepkgsrc()
 prepareCVS
 #if using menu, then prompt for branch
 if [ $menu -eq 0 ] ; then
-echo -n "Enter your tracked pkgbranch [$pkgrelCVS] : "
-read new_pkgrelCVS; if [ X$new_pkgrelCVS != X ] ; then pkgrelCVS=$new_pkgrelCVS; fi
+  echo -n "Enter your tracked pkgbranch [$pkgrelCVS] : "
+  read new_pkgrelCVS; if [ X$new_pkgrelCVS != X ] ; then pkgrelCVS=$new_pkgrelCVS; fi
 else
-echo "Tracked branch : $pkgrelCVS"
+  echo "Tracked branch : $pkgrelCVS"
 fi
 #setting the CVS argument
 pkgrelCVSarg=""
 if [ X$pkgrelCVS != Xcurrent ]
 then
-pkgrelCVSarg=-r$pkgrelCVS
+  pkgrelCVSarg=-r$pkgrelCVS
 fi
 # Comment out the next lines if you are not tracking pkgsrc:
 if [ -d /usr/pkgsrc ]
 then
-set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd | tee /root/sysupdate_pkgsrc.log
-#set -x && cd /usr/pkgsrc/wip && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd | tee /root/sysupdate_pkgsrc_wip.log
-cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
+  set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd | tee /root/sysupdate_pkgsrc.log
+  if [ -d /usr/pkgsrc/wip ]
+  then
+    set -x && cd /usr/pkgsrc/wip && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q up -PAd | tee /root/sysupdate_pkgsrc_wip.log
+  else
+    set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip | tee /root/sysupdate_pkgsrc_wip.log
+  fi
+  cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
 #comment the next 3 lines if you dont want to install the audit package
 #dont forget to add it in your pkgchk.conf
-echo "Updating the vulnerability list..."
-/usr/pkg/sbin/download-vulnerability-list
+  echo "Updating the vulnerability list..."
+  /usr/pkg/sbin/download-vulnerability-list
 #comment the next 3 lines if you dont want installed packages to be check
-echo "Checking if installed packes are older than the downloaded ones..."
-/usr/pkg/sbin/pkg_chk -a -q 
+  echo "Checking if installed packes are older than the downloaded ones..."
+  /usr/pkg/sbin/pkg_chk -a -q 
 else
-set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA pkgsrc | tee /root/sysupdate_pkgsrc.log
-#set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA wip | tee /root/sysupdate_pkgsrc_wip.log
-cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
+  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA pkgsrc | tee /root/sysupdate_pkgsrc.log
+  set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip | tee /root/sysupdate_pkgsrc_wip.log
+  cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
 fi
 set +x
 
