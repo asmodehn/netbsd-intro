@@ -938,27 +938,36 @@ Copyback is 100% complete.</programlisting>
 127.0.0.1 MyHostName localhost localhost.</programlisting>
 
         <para>Then you need to setup your network card (also called
-        "interface"). Once again edit your rc.conf :</para>
+        "interface"). </para>
 
-        <programlisting># vi /etc/rc.conf</programlisting>
-
-        <para>If you are connected to a DHCP server, and want to use the
-        network information it can provide :</para>
-
-        <programlisting>dhclient=YES dhclient_flags=”&lt;interface&gt;”</programlisting>
-
-        <para>&lt;interface&gt; means the network interface that appear in
-        dmesg. For me “wm0”.</para>
-
-        <para>Otherwise you can provide static network information by creating
-        a specific file for ifconfig:</para>
+        <para>To do that you can use the auto_ifconfig features. At startup
+        ifconfig will read some specific files to setup you network. So you
+        need to create this specific file :</para>
 
         <programlisting># vi /etc/ifconfig.&lt;interface&gt;</programlisting>
 
         <para>and inside put the parameter you would put like using ifconfig
-        on the command line :</para>
+        on the command line.</para>
+
+        <para>So for example to setup a wireless network :</para>
+
+        <programlisting>nwid MY_SSID nwkey 0x1234567890</programlisting>
+
+        <para>and if you want a static configuration for your network :</para>
 
         <programlisting>inet 192.168.0.42 netmask 0xffffff00</programlisting>
+
+        <para>To use DHCP, you need once again to edit your rc.conf :</para>
+
+        <programlisting># vi /etc/rc.conf</programlisting>
+
+        <para>and turn on the dhclient deamon at startup</para>
+
+        <programlisting>dhclient=YES dhclient_flags=”&lt;interface1&gt; &lt;interface2&gt; ... ”</programlisting>
+
+        <para>&lt;interface&gt; means the network interface that appear in
+        dmesg. For me “wm0”. Check the manual of dhcpclient for more
+        information about the syntax.</para>
 
         <para>You can test your network configuration anytime by calling
         :</para>
@@ -1426,8 +1435,14 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
         <para>Note that ttyE7 is off since I plan to have X running on this
         VT.</para>
 
-        <para>Also If you plan to use a mouse on the console, remember to
-        create a configuration file for the wsmoused deamon:</para>
+        <para>You can also use wsmoused to add copy/paste features to you
+        console. To do that you need first to enable it in
+        /etc/rc.conf:</para>
+
+        <programlisting>wsmoused=YES</programlisting>
+
+        <para>Then you need to create a configuration file for the wsmoused
+        deamon to specify which terminal is used for X :</para>
 
         <programlisting>$ vi /etc/wsmoused.conf</programlisting>
 
@@ -1436,8 +1451,6 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
         <programlisting>xconsole = 7;</programlisting>
 
         <para>Just reboot and give it a try :-)</para>
-
-        <para>Currently it doesnt seem to work while X is using it...</para>
       </section>
 
       <section>
