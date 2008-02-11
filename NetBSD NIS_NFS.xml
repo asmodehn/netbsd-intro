@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.1//EN"
+"http://www.oasis-open.org/docbook/xml/simple/1.1/sdocbook.dtd">
+<article>
+  <title></title>
+
+  <section>
+    <title></title>
+
+    <para></para>
+
+    <para></para>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>NIS Setup and NFS /home (optional)</title>
+
+    <section>
+      <title>NIS / NFS Server</title>
+
+      <para>NIS used to be called the `Yellow Pages', or YP for short. Because
+      of trademarks it had to be renamed, but the programs are all still
+      prefixed with `yp'.</para>
+
+      <para>Before doing anything with NFS, ensure that your kernel has
+      support for NFS sharing. This means your server must have NFS kernel
+      support enabled. This is the case for GENERIC Kernels. For custom
+      Kernels, the following lines must be in the kernel file:</para>
+
+      <programlisting>file-system     NFS             # Network File System client</programlisting>
+
+      <para>Your server also must have the following option:</para>
+
+      <programlisting>options         NFSSERVER       # Network File System server</programlisting>
+
+      <para>The first thing we should do is decide on a NIS domain name. This
+      has nothing to do with your machine's Internet domain name. It is just a
+      unique name that is used to identify machines in the same NIS block.The
+      domainname is set (as root) using the domainname(1) program,</para>
+
+      <programlisting># domainname olympus</programlisting>
+
+      <para>Or it can be set in the /etc/mydomain file :</para>
+
+      <programlisting># echo "olympus" &gt; /etc/mydomain</programlisting>
+
+      <para>Alternatively, in most BSD systems, it can be set in /etc/rc.conf
+      under the variable `domainname'.</para>
+
+      <programlisting>domainname="olympus"</programlisting>
+
+      <para>After this, we must initialise all files needed for the server to
+      do its work. For this, we use the ypinit utility.</para>
+
+      <programlisting># ypinit -m</programlisting>
+
+      <para>The -m means we are creating a master server. On more complex
+      networks, you can even want slave servers. The tool will ask you for a
+      list of YP servers to bind to. Since we're only using one server, just
+      press Enter (make sure your own server's internal address is in the
+      list).</para>
+
+      <para>Before we run `make' in /var/yp, as the tool says, we must enable
+      the NIS deamons: rpcbind, ypserv and ypbind (in that order).</para>
+
+      <programlisting># vi /etc/rc.conf
+[...snip...]
+rpcbind=YES
+ypserv=YES
+ypbind=YES
+[...snip...]
+:q
+
+# /etc/rc.d/rpcbind start
+# /etc/rc.d/ypserv start
+# /etc/rc.d/ypbind start</programlisting>
+
+      <para>After that, we can run `make' in /var/yp.</para>
+
+      <programlisting># cd /var/yp &amp;&amp; make</programlisting>
+
+      <para>You will have to do that everytime you want to rebuild the NIS
+      mapfile to match your server's password files.</para>
+
+      <para>To test if your setup is working, try yptest. It should spew out
+      the passwd file among others, so don't panic ;)</para>
+
+      <programlisting># yptest</programlisting>
+
+      <para>A disadvantage of NIS is that it is not very secure. If security
+      is a big concern, have a look at LDAP and NIS+, which are more complex
+      directory services. For networks where security isn't that important
+      (like most home networks), NIS will do. It is also much easier to set up
+      than NIS+ or LDAP.</para>
+
+      <para>On NetBSD, the NIS server consults /etc/hosts.allow and
+      /etc/hosts.deny to determine if the requesting host is allowed to access
+      the NIS directory. This can help you in securing NIS a little.</para>
+
+      <para>You can as an example disallow all hosts to connect to your NIS
+      and NFS inside your /etc/hosts.deny :</para>
+
+      <programlisting>ypserv: ALL
+rpcbind: ALL
+ypbind: ALL
+nfsd: ALL</programlisting>
+
+      <para>And allow you LAN hosts in /etc/hosts.allow :</para>
+
+      <programlisting>ypserv: localhost myhost1 myhost2
+rpcbind: localhost myhost1 myhost2
+ypbind: localhost myhost1 myhost2
+nfsd: localhost myhost1 myhost2</programlisting>
+
+      <para>Another solution might be to setup a VPN and enable NIS inside it
+      only...</para>
+
+      <para>Now on for the NFS part, lets share /home !</para>
+
+      <para></para>
+
+      <para></para>
+
+      <para>Setting up NFS is a piece of cake. Just enter all directories you
+      wish to export in /etc/exports and start the NFS daemon. In our example
+      we would have: /home -network 192.168.0.0 -mask 255.255.0.0
+      -maproot=root This exports /home only on the LAN 192.168.x.x. The
+      maproot line is needed, because otherwise the client's root will not
+      have superuser access. Now, start the mount daemon and the NFS deamons
+      (mountd and nfsd) as root on your server, in that order. For that type:
+      root@mars# /etc/rc.d/rpcbind start root@mars# /etc/rc.d/mountd start
+      root@mars# /etc/rc.d/nfsd start root@mars# /etc/rc.d/nfslocking start If
+      you wish to start the NFS server on boot, add following lines to your
+      /etc/rc.conf rpcbind=yes mountd=yes nfs_server=yes lockd=yes statd=yes
+      Now, try to mount from the client and type: root@mars # mount -t nfs
+      earth:/home /home Voila, you're done. Just add all NFS volumes you want
+      to mount to your /etc/fstab like this earth:/home /home nfs rw and have
+      them mounted at system startup. NOTE: I had much trouble with NFS which
+      was caused by UDP packet fragmentation. This made all writes extremely
+      slow (and other outgoing network traffic as well!) while reads were at
+      an acceptable speed. To solve this, I added the (undocumented?) `tcp'
+      option to fstab to mount NFS over TCP. You'll probably also need to add
+      nfsd_flags='-t' to rc.conf so the NFS server serves up TCP exports. If
+      you just want to run NFS, you need to run the following daemons on your
+      server: rpcbind, mountd, nfsd (in that order)</para>
+
+      <para></para>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>NIS / NFS Client</title>
+
+      <para>Before connecting to a NFS Server, ensure that your kernel has
+      support for NFS sharing. This means your clients must have NFS kernel
+      support enabled. This is the case for GENERIC Kernels. For custom
+      Kernels, the following lines must be in the kernel file:</para>
+
+      <programlisting>file-system     NFS             # Network File System client</programlisting>
+
+      <para>To get stuff working along with your new NIS server, you need to
+      enable the rpcbind and ypbind daemons.</para>
+
+      <programlisting># vi /etc/rc.conf
+[...snip...]
+domainname="olympus"
+rpcbind=YES
+ypbind=YES
+[...snip...]
+:wq
+
+# /etc/rc.d/rpcbind start
+# /etc/rc.d/ypbind start</programlisting>
+
+      <para>After that, you can use ypinit:</para>
+
+      <programlisting># ypinit -c</programlisting>
+
+      <para>Then, add your NIS server's address to the list. To test if
+      everything is working, use yptest. It should spew out the passwd file
+      among others, so don't panic ;). Note that ypbind will HANG if it can't
+      find the server!</para>
+
+      <programlisting># yptest</programlisting>
+
+      <para>If everything is working, you can test some logins. You might also
+      need to change a bit your /etc/nsswitch.conf :</para>
+
+      <programlisting># These are the defaults in libc
+# changed to use nis for passwds and groups
+#
+group:          nis [notfound=return] files
+#group_compat:   nis
+hosts:          files dns
+netgroup:       files [notfound=return] nis
+networks:       files
+passwd:         nis [notfound=return] files
+#passwd_compat:  nis
+shells:         files</programlisting>
+
+      <para>This is the easiest way, as you wont have to modify your
+      /etc/passwd file, but all the user on the server will be transferred to
+      nis, you will not be able to keep some locals and some on nis only...
+      this is fine if you NIS setup is at early stage, if you want only one
+      user list for all your machines, and if all your existing uids match on
+      hte server and the client, which is the case when both server and client
+      are running netbsd and you dont have to maintain lots of users here and
+      there... Well in the last case Have a look at LDAP it is more
+      appropriate after all, and more secure.</para>
+
+      <para>Well, you are now ready to go to the NFS part : accessing /home
+      !</para>
+
+      <para>TODO. Remember to test ssh, was a pain to get working...</para>
+
+      <para></para>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>Notes on NIS/NFS</title>
+
+      <para>The NIS server should be a client of itself.</para>
+
+      <para>If you plan to allow the user to change their passwd, enable the
+      yppasswdd in /etc/rc.conf on the server only. Using the usual passwd
+      will change the nis password, detected by PAM ;)</para>
+
+      <para>User management still works the same way, however, to propagate
+      changes from local /etc/passwd on the nis server to the NIS map files,
+      you will have to "cd /var/yp &amp;&amp; make" as root everytime a
+      refresh is needed.</para>
+
+      <para>Remember to test NIS along wth your ssh setup if you have one,
+      which I advise, to make sure your logins are fines our keys here and
+      there, especially if you are sharing your /home with keys in
+      /home/*/.ssh. You could run into troubles, so be careful...</para>
+    </section>
+  </section>
+</article>
