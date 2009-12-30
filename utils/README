@@ -1,0 +1,4 @@
+The files for the documentation are in DocBook Format.
+We advise to use XMLMind XML Editor to edit the files, 
+and the docbook-utils packages on linux to produce pdf, html, etc.
+

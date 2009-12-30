@@ -2,10 +2,10 @@
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.0//EN"
 "http://www.oasis-open.org/docbook/xml/simple/1.0/sdocbook.dtd">
 <article>
-  <title>NetBSD 4.0 Installation Quick and Clean</title>
+  <title>NetBSD 5.0 Installation Quick and Clean</title>
 
   <subtitle>This document is aimed at gathering the best way to properly
-  install NetBSD 4.0 on your machine <emphasis>(ix86 or amd64)</emphasis>, as
+  install NetBSD 5.0 on your machine <emphasis>(ix86 or amd64)</emphasis>, as
   quick as possible, with 2 sample configurations : Server and
   Desktop</subtitle>
 
@@ -23,8 +23,8 @@
     something is unclear for you can refer to the <ulink
     url="http://www.netbsd.org/guide/en/">NetBSD Guide</ulink> which explains
     all the details you might need. Please also keep in mind that this
-    document has been written while working on 4.0 BETA_2, therefore some
-    details might be a bit different.</para>
+    document has been written while working on 5.0, therefore some details
+    might be a bit different.</para>
 
     <table>
       <title>Our NetBSD Configurations</title>
@@ -89,7 +89,7 @@
   <section>
     <title>New Installation</title>
 
-    <para><emphasis>This document is now focusing on installing NetBSD 4.0 (
+    <para><emphasis>This document is now focusing on installing NetBSD 5.0 (
     will be updated to match the last stable release only, although it should
     be usable for most of them if you know what you are doing
     )</emphasis></para>
@@ -208,7 +208,8 @@
 
         <para>8 GB /home + softdep</para>
 
-        <para>128 MB /tmp ( more than enough)</para>
+        <para>No need to set some space for /tmp, better to use tmpfs. We will
+        set it up later on.</para>
       </section>
 
       <section>
@@ -242,13 +243,15 @@
     <section>
       <title>Checking the installed OS</title>
 
-      <para>First verify that your setup for your partition is fine, always a
-      good idea to see what your OS needs as disk space to run :</para>
+      <para>First, login as root with the password you chose during the instal
+      step. </para>
+
+      <para>Verify that your setup for your partition is fine, always a good
+      idea to see what your OS needs as disk space to run :</para>
 
       <programlisting># df -h</programlisting>
 
-      <para>Check your corresponding /etc/fstab file (add softdep setting now
-      if you want to).</para>
+      <para>Check your corresponding /etc/fstab file</para>
 
       <programlisting># vi /etc/fstab</programlisting>
 
@@ -306,9 +309,6 @@ apm0: battery life expectancy: 100%
 apm0: A/C state: off
 apm0: battery charge state: high
 apm0: estimated 2h 26m</programlisting>
-
-          <para>As explicited for ACPI you can also enable powerd on top of
-          apmd.</para>
         </section>
 
         <section>
@@ -334,7 +334,7 @@ apm0: estimated 2h 26m</programlisting>
         </section>
 
         <section>
-          <title>Setting up an UPS ( an example with the APC UPS ) with USB
+          <title>Setting up a UPS ( an example with the APC UPS ) with USB
           (optional)</title>
 
           <para>To get the USB to be correctly identified, you need to disable
@@ -371,7 +371,8 @@ apm0: estimated 2h 26m</programlisting>
         example.</para>
 
         <para>To be able to use them now edit <literal>/etc/fstab</literal> to
-        add entries for cdrom and floppy. Simply add those lines :</para>
+        add entries for cdrom and floppy. Simply add those lines if they are
+        not already there :</para>
 
         <programlisting>/dev/cd0 /mnt/cdrom cd9660 ro,noauto 0 0
 /dev/fd0 /mnt/floppy msdos rw,noauto 0 0</programlisting>
@@ -390,6 +391,20 @@ apm0: estimated 2h 26m</programlisting>
 
         <programlisting># ln -s /dev/cd0d /dev/dvd
 # ln -s /dev/cd0d /dev/cdrom</programlisting>
+
+        <para>You can also modify some filesystem options... As an example (
+        on NetBSD 5.0), if you want to use tmpfs :</para>
+
+        <programlisting># NetBSD /etc/fstab
+# See /usr/share/examples/fstab/ for more examples
+/dev/wd0a               /        ffs         rw              1 1
+/dev/wd0b               none     swap        sw              0 0
+/dev/wd0e               /home    ffs         rw              1 2
+kernfs                  /kern    kernfs      rw
+ptyfs                   /dev/pts ptyfs       rw
+procfs                  /proc    procfs      rw
+tmpfs                   /tmp     tmpfs       rw
+/dev/cd0a               /cdrom   cd9660      ro,noauto</programlisting>
       </section>
 
       <section>
@@ -418,8 +433,24 @@ apm0: estimated 2h 26m</programlisting>
         <para>Then you need to setup your network card (also called
         "interface").</para>
 
-        <para>To do that you can use the auto_ifconfig features. At startup
-        ifconfig will read some specific files to setup you network. So you
+        <para>First you need to find out which interfaces have been detected.
+        You can run :</para>
+
+        <programlisting># ifconfig -a</programlisting>
+
+        <para>to find out which interfaces have been detected by the kernel.
+        If one interface is missing, it means that you will probably have to
+        rebuild a kernel with the driver for your network card...</para>
+
+        <para>To do automatic setup of your network card on boot, you can use
+        the auto_ifconfig features.</para>
+
+        <programlisting># vi /etc/rc.conf</programlisting>
+
+        <programlisting>auto_ifconfig=YES</programlisting>
+
+        <para>At startup ifconfig, if you didnt specify anything else in
+        rc.conf, will read some specific files to setup you network. So you
         need to create this specific file :</para>
 
         <programlisting># vi /etc/ifconfig.&lt;interface&gt;</programlisting>
@@ -444,7 +475,7 @@ apm0: estimated 2h 26m</programlisting>
         <programlisting>dhclient=YES dhclient_flags=”&lt;interface1&gt; &lt;interface2&gt; ... ”</programlisting>
 
         <para>&lt;interface&gt; means the network interface that appear in
-        dmesg. For me “wm0”. Check the manual of dhcpclient for more
+        dmesg. For me “iwn0”. Check the manual of dhcpclient for more
         information about the syntax.</para>
 
         <para>You can test your network configuration anytime by calling
@@ -666,6 +697,7 @@ screen 7 - -</programlisting>
         then I add the needed lines :</para>
 
         <programlisting>console "/usr/libexec/getty Pc" vt100 off secure
+constty "/usr/libexec/getty Pc" vt100 off secure
 ttyE0 "/usr/libexec/getty Pc" vt220 off secure
 ttyE1 "/usr/libexec/getty Pc" vt220 on secure
 ttyE2 "/usr/libexec/getty Pc" vt220 on secure
@@ -699,7 +731,13 @@ ttyE7 "/usr/libexec/getty Pc" vt220 off secure</programlisting>
       <section>
         <title>Root -&gt; Setup X</title>
 
-        <para>Do you want to setup X ? just run :</para>
+        <para>Do you want to setup X ? Note from NetBSD 5.0, Xorg is by
+        default, XFree86 with its easy to use xf86cfg is gone... For the new
+        method to configure XOrg, read the manual. If you have an older
+        version or want to configure XFree86, you can follow these
+        instructions :</para>
+
+        <para>To configure XFree86, just run :</para>
 
         <programlisting># xf86cfg</programlisting>
 
