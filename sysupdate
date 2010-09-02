@@ -4,7 +4,8 @@
 # by Asmodehn 
 # Modified 26 November 2005
 # Automates source code / ports checkout & update & system rebuild for NetBSD
-# from 3.0 release
+# from 2.0 release
+# Modified and updated for 5.0
 ##############################################################################
 
 #Safety : Stop the script if any untested command failed
@@ -18,17 +19,18 @@ CVS_RSH="ssh"
 CVS_COMP_LVL=3
 # 1) CVS Option for Tracked Branch ("current" for current branch)
 #relCVS="current"
-relCVS="netbsd-4"
-#pkgrelCVS="current"
-pkgrelCVS="pkgsrc-2007Q1"
+relCVS="netbsd-5"
+pkgrelCVS="current"
+#pkgrelCVS="pkgsrc-2010Q2"
 tooldir="tooldir.sysupdate"
-arch=i386
+arch=amd64
 
 #Beware : The menu will use these as default values for now...
 
 #Build options:
 loglevel="-N 2"
-update="-u"
+update=""
+#update="-u"
 
 #Global variables
 menu=1
@@ -66,9 +68,9 @@ then
 fi
 if [ -d /usr/src ]
 then
-  set -x && cd /usr/src && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd | tee /root/sysupdate_src.log
+  set -x && cd /usr/src && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd 2>&1 | tee /root/sysupdate_src.log
 else
-  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA src | tee /root/sysupdate_src.log
+  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA src 2>&1 | tee /root/sysupdate_src.log
 fi
 set +x
 if [ $menu -eq 0 ] ;then mainmenu; fi
@@ -93,12 +95,12 @@ fi
 # Comment out the next lines if you are not tracking pkgsrc:
 if [ -d /usr/pkgsrc ]
 then
-  set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd | tee /root/sysupdate_pkgsrc.log
+  set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd 2>&1 | tee /root/sysupdate_pkgsrc.log
   if [ -d /usr/pkgsrc/wip ]
   then
-    set -x && cd /usr/pkgsrc/wip && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q up -PAd | tee /root/sysupdate_pkgsrc_wip.log
-  else
-    set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip | tee /root/sysupdate_pkgsrc_wip.log
+    set -x && cd /usr/pkgsrc/wip && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q up -PAd  2>&1 | tee /root/sysupdate_pkgsrc_wip.log
+#  else
+#    set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip 2>&1 | tee /root/sysupdate_pkgsrc_wip.log
   fi
   cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
 #comment the next 3 lines if you dont want to install the audit package
@@ -109,8 +111,8 @@ then
   echo "Checking if installed packes are older than the downloaded ones..."
   /usr/pkg/sbin/pkg_chk -a -q 
 else
-  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA pkgsrc | tee /root/sysupdate_pkgsrc.log
-  set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip | tee /root/sysupdate_pkgsrc_wip.log
+  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA pkgsrc 2>&1 | tee /root/sysupdate_pkgsrc.log
+  set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip 2>&1 | tee /root/sysupdate_pkgsrc_wip.log
   cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
 fi
 set +x
@@ -137,9 +139,9 @@ fi
 # Comment out the next lines if you are not tracking xsrc:
 if [ -d /usr/xsrc ]
 then
-set -x && cd /usr/xsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd | tee /root/sysupdate_xsrc.log
+set -x && cd /usr/xsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd 2>&1 | tee /root/sysupdate_xsrc.log
 else
-set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA xsrc | tee /root/sysupdate_xsrc.log
+set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA xsrc 2>&1 | tee /root/sysupdate_xsrc.log
 fi
 set +x
 if [ $menu -eq 0 ] ;then mainmenu; fi
@@ -162,7 +164,7 @@ fi
 cd /usr/src
 #TODO Prompt for update or not
 set -x
-./build.sh $update $loglevel -T $tooldir tools kernel=$KERNAME | tee /root/sysupdate_kernel.log
+./build.sh $update $loglevel -T $tooldir tools kernel=$KERNAME 2>&1 | tee /root/sysupdate_kernel.log
 set +x
 if [ $menu -eq 0 ] ;then mainmenu; fi
 return $?
@@ -174,21 +176,20 @@ cd /usr/src
 set -x
 if [ -d /usr/xsrc ]
 then
-./build.sh -x $update $loglevel -T $tooldir distribution | tee /root/sysupdate_userland_X.log
+./build.sh -x $update $loglevel -T $tooldir distribution 2>&1 | tee /root/sysupdate_userland_compile.log
 else
-./build.sh $update $loglevel -T $tooldir distribution | tee /root/sysupdate_userland.log
+./build.sh $update $loglevel -T $tooldir distribution 2>&1 | tee /root/sysupdate_userland_compile.log
 fi
 set +x
-echo "Userland build Done. Going on with installation..."
-echo "Take care of the instructions in the ouput!"
-echo "Press [Ctrl-C] to stop if there is any error."
-echo "Otherwise press Enter to continue..."; read pause
+if [ $menu -eq 0 ] ;then mainmenu; fi
+return $?
+}
+installuserland()
+{
+cd /usr/src
 set -x
-./build.sh $update $loglevel -T $tooldir install=/ 
+./build.sh $update $loglevel -T $tooldir install=/ 2>&1 | tee /root/sysupdate_userland_install.log 
 set +x
-echo "Everything went fine ? So go on with /etc merging..."
-echo "Press Enter to continue or [Ctrl-C] otherwise..."; read pause
-mergeetc
 if [ $menu -eq 0 ] ;then mainmenu; fi
 return $?
 }
@@ -204,25 +205,37 @@ read KERNAME
 done
 cd /usr/src/sys/arch/$arch/compile/obj/$KERNAME && \
 make install && \
-shutdown -r +5
-if [ $menu -eq 0 ] ;then mainmenu; fi
-return $?
+rebootme
 }
+
+rebootme()
+{
+echo "Rebooting..."
+shutdown -r +1 && exit
+}
+
 mergeetc()
 {
 if [ -e /usr/sbin/etcupdate ]
 then
-/usr/sbin/etcupdate -al -s /usr/src
+/usr/sbin/etcupdate -al -s /usr/src && \
+echo "fix errors and reboot..." && \
+exit $?
+#rebootme
 else
 echo " etcupdate : Not found."
 fi
-if [ $menu -eq 0 ] ;then mainmenu; fi
-return $?
 }
 mainmenu()
 {
 menu=0
-echo "System Update utility for NetBSD from release 2.X "
+echo ""
+echo "System Update utility for NetBSD. Reviewed for release 5.X "
+echo ""
+echo "CVSROOT : $CVSROOT"
+echo "Release : $relCVS"
+echo "Arch : $arch"
+echo "PkgSrc : $pkgrelCVS"
 echo ""
 echo " Please choose an option:"
 echo ""
@@ -245,10 +258,11 @@ echo " 3) Update xsrc"
 else
 echo " 3) Get xsrc"
 fi
-echo " 4) Compile Kernel"
-echo " 5) Replace Kernel & Reboot"
-echo " 6) Compile Userland"
-echo " 7) Merge new /etc files"
+echo " 4) Compile Userland"
+echo " 5) Compile Kernel"
+echo " 6) Replace Kernel & Reboot"
+echo " 7) Install Userland"
+echo " 8) Merge new /etc files & Reboot"
 echo " 0) Exit"
 echo ""
 echo -n " Option (0-7): "
@@ -257,10 +271,11 @@ case $UPDT in
 1) updatesrc;;
 2) updatepkgsrc;;
 3) updatexsrc;;
-4) compilekernel;;
-5) changekernel;;
-6) compileuserland;;
-7) mergeetc;;
+4) compileuserland;;
+5) compilekernel;;
+6) changekernel;;
+7) installuserland;;
+8) mergeetc;;
 0) exit 0;;
 *) echo "" && echo "Please enter a number between zero and seven."
 echo -n "Press enter to continue." && read WT && mainmenu;;
@@ -277,18 +292,20 @@ src) updatesrc;;
 pkgsrc) updatepkgsrc;;
 xsrc) updatexsrc;;
 kernel) compilekernel $2;;
-userland) compileuserland;;
+userland-compile) compileuserland;;
+userland-install) installuserland;;
 newkernel) changekernel $2;;
 merge) mergeetc;;
 *) echo "Usage:"
-echo "sysupdate [src|pkgsrc|xsrc|kernel|newkernel|userland|merge]"
+echo "sysupdate [src|pkgsrc|xsrc|kernel|newkernel|userland-compile|userland-install|merge]"
 echo ""
 echo "src - update /usr/src/ via cvs"
 echo "pkgsrc - update /usr/pkgsrc/ via cvs"
 echo "xsrc - update /usr/xsrc/ via cvs"
 echo "kernel - build a new kernel"
 echo "newkernel - install a previously built kernel"
-echo "userland - build and install userland from source"
+echo "userland-compile - build userland from source"
+echo "userland-install - install userland"
 echo "merge - update /etc with new config files"
 echo ""
 echo "no options - opens selection menu"
