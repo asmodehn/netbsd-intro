@@ -1,0 +1,315 @@
+#!/bin/sh
+##############################################################################
+# SYStem Upgrade
+# by Asmodehn 
+# Modified 26 November 2005
+# Automates source code / ports checkout & update & system rebuild for NetBSD
+# from 2.0 release
+# Modified and updated for 5.0
+##############################################################################
+
+#Safety : Stop the script if any untested command failed
+set -e
+#TODO : improve detection of errors, as much as possible...
+#REVIEW the menu /vs/ command line script structure...
+
+#Setup for command line use (without menu -> later):
+CVSROOT="anoncvs@anoncvs.fr.NetBSD.org:/pub/NetBSD-CVS"
+CVS_RSH="ssh"
+CVS_COMP_LVL=3
+# 1) CVS Option for Tracked Branch ("current" for current branch)
+#relCVS="current"
+relCVS="netbsd-5"
+pkgrelCVS="current"
+#pkgrelCVS="pkgsrc-2010Q2"
+tooldir="tooldir.sysupdate"
+arch=amd64
+
+#Beware : The menu will use these as default values for now...
+
+#Build options:
+loglevel="-N 2"
+update=""
+#update="-u"
+
+#Global variables
+menu=1
+
+
+prepareCVS()
+{
+#if using the menu, then prompt for cvsroot and cvsrsh
+if [ $menu -eq 0 ] ; then
+  echo -n "Enter your CVSROOT [$CVSROOT] : "
+  read new_CVSROOT; if [ X$new_CVSROOT != X ] ; then CVSROOT=$new_CVSROOT; fi
+  echo -n "Enter your CVS_RSH [$CVS_RSH] : "
+  read new_CVS_RSH; if [ X$new_CVS_RSH != X ]; then CVS_RSH=$new_CVS_RSH; fi
+else
+  echo cvsroot : $CVSROOT
+  echo protocol : $CVS_RSH
+fi
+return $?
+}
+updatesrc()
+{
+prepareCVS
+#if using menu, then prompt for branch
+if [ $menu -eq 0 ] ; then
+  echo -n "Enter your tracked branch [$relCVS] : "
+  read new_relCVS; if [ X$new_relCVS != X ]; then relCVS=$new_relCVS; fi
+else
+  echo "Tracked branch : $relCVS"
+fi
+#setting the CVS argument
+relCVSarg=""
+if [ X$relCVS != Xcurrent ]
+then
+  relCVSarg=-r$relCVS
+fi
+if [ -d /usr/src ]
+then
+  set -x && cd /usr/src && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd 2>&1 | tee /root/sysupdate_src.log
+else
+  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA src 2>&1 | tee /root/sysupdate_src.log
+fi
+set +x
+if [ $menu -eq 0 ] ;then mainmenu; fi
+return $?
+}
+updatepkgsrc()
+{
+prepareCVS
+#if using menu, then prompt for branch
+if [ $menu -eq 0 ] ; then
+  echo -n "Enter your tracked pkgbranch [$pkgrelCVS] : "
+  read new_pkgrelCVS; if [ X$new_pkgrelCVS != X ] ; then pkgrelCVS=$new_pkgrelCVS; fi
+else
+  echo "Tracked branch : $pkgrelCVS"
+fi
+#setting the CVS argument
+pkgrelCVSarg=""
+if [ X$pkgrelCVS != Xcurrent ]
+then
+  pkgrelCVSarg=-r$pkgrelCVS
+fi
+# Comment out the next lines if you are not tracking pkgsrc:
+if [ -d /usr/pkgsrc ]
+then
+  set -x && cd /usr/pkgsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $pkgrelCVSarg -PAd 2>&1 | tee /root/sysupdate_pkgsrc.log
+  if [ -d /usr/pkgsrc/wip ]
+  then
+    set -x && cd /usr/pkgsrc/wip && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q up -PAd  2>&1 | tee /root/sysupdate_pkgsrc_wip.log
+#  else
+#    set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip 2>&1 | tee /root/sysupdate_pkgsrc_wip.log
+  fi
+  cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
+#comment the next 3 lines if you dont want to install the audit package
+#dont forget to add it in your pkgchk.conf
+  echo "Updating the vulnerability list..."
+  /usr/pkg/sbin/download-vulnerability-list
+#comment the next 3 lines if you dont want installed packages to be check
+  echo "Checking if installed packes are older than the downloaded ones..."
+  /usr/pkg/sbin/pkg_chk -a -q 
+else
+  set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $pkgrelCVSarg -PA pkgsrc 2>&1 | tee /root/sysupdate_pkgsrc.log
+  set -x && cd /usr/pkgsrc && cvs -d anoncvs@anoncvs.netbsd.se:/cvsroot -z $CVS_COMP_LVL -q co -PA wip 2>&1 | tee /root/sysupdate_pkgsrc_wip.log
+  cd /usr/pkgsrc/bootstrap && ./bootstrap > /root/sysupdate_pkgsrc_bootstrap.log
+fi
+set +x
+
+if [ $menu -eq 0 ] ;then mainmenu; fi
+return $?
+}
+updatexsrc()
+{
+prepareCVS
+#if using menu, then prompt for branch
+if [ $menu -eq 0 ] ; then
+echo -n "Enter your tracked branch [$relCVS] : "
+read new_relCVS; if [ X$new_relCVS != X ]; then relCVS=$new_relCVS; fi
+else
+echo "Tracked branch : $relCVS"
+fi
+#setting the CVS argument
+relCVSarg=""
+if [ X$relCVS != Xcurrent ]
+then
+relCVSarg=-r$relCVS
+fi
+# Comment out the next lines if you are not tracking xsrc:
+if [ -d /usr/xsrc ]
+then
+set -x && cd /usr/xsrc && cvs -d $CVSROOT -z $CVS_COMP_LVL -q up $relCVSarg -PAd 2>&1 | tee /root/sysupdate_xsrc.log
+else
+set -x && cd /usr && cvs -d $CVSROOT -z $CVS_COMP_LVL -q co $relCVSarg -PA xsrc 2>&1 | tee /root/sysupdate_xsrc.log
+fi
+set +x
+if [ $menu -eq 0 ] ;then mainmenu; fi
+return $?
+}
+compilekernel()
+{
+KERNAME=$1
+cd /usr/src/sys/arch/$arch/conf
+while [ X$KERNAME = X ] || [ ! -r $KERNAME ]
+do
+echo "No Config File found for this Kernel..."
+echo -n " Type the name of the Kernel to Build or [Ctrl-C] to exit : "
+read KERNAME 
+done
+if [ ! -d /usr/obj ]
+then
+mkdir /usr/obj
+fi
+cd /usr/src
+#TODO Prompt for update or not
+set -x
+./build.sh $update $loglevel -T $tooldir tools kernel=$KERNAME 2>&1 | tee /root/sysupdate_kernel.log
+set +x
+if [ $menu -eq 0 ] ;then mainmenu; fi
+return $?
+}
+compileuserland()
+{
+#TODO : prompt user for update or not
+cd /usr/src
+set -x
+if [ -d /usr/xsrc ]
+then
+./build.sh -x $update $loglevel -T $tooldir distribution 2>&1 | tee /root/sysupdate_userland_compile.log
+else
+./build.sh $update $loglevel -T $tooldir distribution 2>&1 | tee /root/sysupdate_userland_compile.log
+fi
+set +x
+if [ $menu -eq 0 ] ;then mainmenu; fi
+return $?
+}
+installuserland()
+{
+cd /usr/src
+set -x
+./build.sh $update $loglevel -T $tooldir install=/ 2>&1 | tee /root/sysupdate_userland_install.log 
+set +x
+if [ $menu -eq 0 ] ;then mainmenu; fi
+return $?
+}
+changekernel()
+{
+KERNAME=$1
+cd /usr/src/sys/arch/$arch/compile/obj
+while [ X$KERNAME = X ] || [ ! -r $KERNAME/netbsd ]
+do
+echo "No kernel found for $KERNAME..."
+echo -n " Type the name of the built kernel to Install or [Ctrl-C] to exit : "
+read KERNAME 
+done
+cd /usr/src/sys/arch/$arch/compile/obj/$KERNAME && \
+make install && \
+rebootme
+}
+
+rebootme()
+{
+echo "Rebooting..."
+shutdown -r +1 && exit
+}
+
+mergeetc()
+{
+if [ -e /usr/sbin/etcupdate ]
+then
+/usr/sbin/etcupdate -al -s /usr/src && \
+echo "fix errors and reboot..." && \
+exit $?
+#rebootme
+else
+echo " etcupdate : Not found."
+fi
+}
+mainmenu()
+{
+menu=0
+echo ""
+echo "System Update utility for NetBSD. Reviewed for release 5.X "
+echo ""
+echo "CVSROOT : $CVSROOT"
+echo "Release : $relCVS"
+echo "Arch : $arch"
+echo "PkgSrc : $pkgrelCVS"
+echo ""
+echo " Please choose an option:"
+echo ""
+#Are sources already on the disk ?
+if [ -d /usr/src ]
+then
+echo " 1) Update src"
+else
+echo " 1) Get src"
+fi
+if [ -d /usr/pkgsrc ]
+then
+echo " 2) Update pkgsrc"
+else
+echo " 2) Get pkgsrc"
+fi
+if [ -d /usr/xsrc ]
+then
+echo " 3) Update xsrc"
+else
+echo " 3) Get xsrc"
+fi
+echo " 4) Compile Userland"
+echo " 5) Compile Kernel"
+echo " 6) Replace Kernel & Reboot"
+echo " 7) Install Userland"
+echo " 8) Merge new /etc files & Reboot"
+echo " 0) Exit"
+echo ""
+echo -n " Option (0-7): "
+read UPDT
+case $UPDT in
+1) updatesrc;;
+2) updatepkgsrc;;
+3) updatexsrc;;
+4) compileuserland;;
+5) compilekernel;;
+6) changekernel;;
+7) installuserland;;
+8) mergeetc;;
+0) exit 0;;
+*) echo "" && echo "Please enter a number between zero and seven."
+echo -n "Press enter to continue." && read WT && mainmenu;;
+esac
+}
+
+# Main Body
+if [ $# -eq 0 ]
+then
+mainmenu
+fi
+case $1 in
+src) updatesrc;;
+pkgsrc) updatepkgsrc;;
+xsrc) updatexsrc;;
+kernel) compilekernel $2;;
+userland-compile) compileuserland;;
+userland-install) installuserland;;
+newkernel) changekernel $2;;
+merge) mergeetc;;
+*) echo "Usage:"
+echo "sysupdate [src|pkgsrc|xsrc|kernel|newkernel|userland-compile|userland-install|merge]"
+echo ""
+echo "src - update /usr/src/ via cvs"
+echo "pkgsrc - update /usr/pkgsrc/ via cvs"
+echo "xsrc - update /usr/xsrc/ via cvs"
+echo "kernel - build a new kernel"
+echo "newkernel - install a previously built kernel"
+echo "userland-compile - build userland from source"
+echo "userland-install - install userland"
+echo "merge - update /etc with new config files"
+echo ""
+echo "no options - opens selection menu"
+echo "";;
+esac
+exit $?
+

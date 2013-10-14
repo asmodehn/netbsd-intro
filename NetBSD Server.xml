@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V1.0//EN"
+"http://www.oasis-open.org/docbook/xml/simple/1.0/sdocbook.dtd">
+<article>
+  <title>Advanced Server Setup on NetBSD 3.0 with Pkgsrc 2006Q2</title>
+
+  <subtitle>This document is aimed at gathering the best way to set up a
+  NetBSD 3.0 based server that offers all services needed by ISPs and hosters
+  (web server (SSL-capable), mail server (with SMTP-AUTH and TLS), DNS server,
+  FTP server, PostgresQL server, POP3/IMAP, etc.).</subtitle>
+
+  <section>
+    <title>Advanced Server Requirements</title>
+
+    <para>For the following, I assume that you have already properly setup a
+    server as described <ulink url="???">here</ulink>.</para>
+
+    <para>I will also assume that you have an internet connection and a
+    router-modem connected to it, so we wont bother about the modem
+    connections settings. more information is available in the <ulink
+    url="http://www.netbsd.org/guide/en/">NetBSD Guide.</ulink></para>
+
+    <para>The mostly used configuration in that case is that you have an IP
+    address assigned by your ISP whenever you establish your
+    connection.</para>
+
+    <table>
+      <title>Features needed and software used</title>
+
+      <tgroup cols="2">
+        <thead>
+          <row>
+            <entry align="center">Feature</entry>
+
+            <entry align="center">Implementation</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry>SSH - for remote console access</entry>
+
+            <entry>OpenSSH (base)</entry>
+          </row>
+
+          <row>
+            <entry>DNS - for name resolution, so you can forget the IP
+            address</entry>
+
+            <entry>BIND (???)</entry>
+          </row>
+
+          <row>
+            <entry>NTP - for date / time automatic setup</entry>
+
+            <entry>ntpd (base)</entry>
+          </row>
+
+          <row>
+            <entry>SMTP - to be able to send mails from your server</entry>
+
+            <entry>Postfix (???)</entry>
+          </row>
+
+          <row>
+            <entry>IMAP - to be able to access your mails on your
+            server</entry>
+
+            <entry>Cyrus (???)</entry>
+          </row>
+
+          <row>
+            <entry>POP3 - to be able to retrieve your mails from your
+            server</entry>
+
+            <entry>???</entry>
+          </row>
+
+          <row>
+            <entry>FTP - to be able to quickly access your files on your
+            server</entry>
+
+            <entry>wsFTPd (pkgsrc)</entry>
+          </row>
+
+          <row>
+            <entry>HTTP - to be able to have a web page exposed to the world
+            ;-)</entry>
+
+            <entry>Apache (pkgsrc) v2</entry>
+          </row>
+
+          <row>
+            <entry>PHP - to be able to have more complex web pages :-p</entry>
+
+            <entry>Ap-PHP (pkgsrc)</entry>
+          </row>
+
+          <row>
+            <entry>SQL - to host a database, usefull for complex
+            applications</entry>
+
+            <entry>PostgresQL (pkgsrc) v8.0.8, PhpPgAdmin (pkgsrc)</entry>
+          </row>
+
+          <row>
+            <entry>Server Administration</entry>
+
+            <entry>Webmin (pkgsrc) and modules...</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <para></para>
+
+    <para>For any comments and feedback, I would like to hear from you, so
+    send me a <ulink url="mailto:asmodehn@gna.org">mail</ulink> ;-)</para>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>Pkgsrc Setup</title>
+
+    <para>I will not describe here the pkgsrc structure, features and
+    behaviour. You should already be familiar with it. If you are not, you can
+    read the <ulink url="http://www.netbsd.org/Documentation/pkgsrc/">pkgsrc
+    guide</ulink>.</para>
+
+    <para>However it is good to remind here that the pkgsrc collection can be
+    configured, that is customise the way building and installing packages
+    will behave.</para>
+
+    <para>If you have installed the basic NetBSD described <ulink
+    url="???">here</ulink> You should already have configured the cpuflags
+    package to optimise your builds depending on your hardware. Just make sure
+    the optimisation you setup are safe.</para>
+
+    <para></para>
+
+    <para>Another option that can be usefull when setting up a server, is the
+    one controlling the rc.d scripts. To automatically copy the rc.d scripts
+    that comes with a package to /etc/rc.d you should add :</para>
+
+    <programlisting>PKG_RCD_SCRIPTS=YES</programlisting>
+
+    <para>to your /etc/mk.conf.</para>
+
+    <para>However I usually prefer symbolic linkage to keep in mind where the
+    file actually comes from...</para>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>SSH Setup</title>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>DNS Setup</title>
+
+    <para><emphasis role="bold">TODO</emphasis></para>
+  </section>
+
+  <section>
+    <title>NTP Setup</title>
+
+    <para><emphasis role="bold">TODO</emphasis></para>
+
+    <section>
+      <title>Client only</title>
+
+      <para></para>
+    </section>
+
+    <section>
+      <title>NTP Server</title>
+
+      <para></para>
+    </section>
+  </section>
+
+  <section>
+    <title>Mail : SMTP, IMAP, POP3</title>
+
+    <para><emphasis role="bold">TODO</emphasis></para>
+  </section>
+
+  <section>
+    <title>FTP Server</title>
+
+    <para>First, you need to install the proftpd package using pkgsrc :</para>
+
+    <programlisting>&gt; cd /usr/pkgsrc/net/proftpd
+&gt; make &amp;&amp; make install</programlisting>
+
+    <para>If your build and installation was successful, TODO</para>
+
+    <para></para>
+
+    <para>If you wish to start the ProFTPd server at boottime, you need to add
+    proftpd=YES to your /etc/rc.conf.</para>
+
+    <para>Using the rc.d script, you can start the server just like that
+    :</para>
+
+    <programlisting>&gt; /etc/rc.d/proftpd start</programlisting>
+
+    <para>To stop the server, substitute start with stop.</para>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>Apache Setup</title>
+
+    <para>First, you need to install the apache package using pkgsrc :</para>
+
+    <programlisting>&gt; cd /usr/pkgsrc/www/apache2
+&gt; make &amp;&amp; make install</programlisting>
+
+    <para>If your build and installation was successful, you should now edit
+    the Apache configuration file /usr/pkg/etc/httpd/httpd.conf to fit your
+    needs. At least set your Servername.</para>
+
+    <para>I usually authorise my users to have their own website. To do that
+    you need to uncomment those lines :</para>
+
+    <programlisting>#
+# Control access to UserDir directories.  The following is an example
+# for a site where these directories are restricted to read-only.
+#
+&lt;Directory /home/*/public_html&gt;
+    AllowOverride FileInfo AuthConfig Limit Indexes
+    Options MultiViews Indexes SymLinksIfOwnerMatch IncludesNoExec
+    &lt;Limit GET POST OPTIONS PROPFIND&gt;
+        Order allow,deny
+        Allow from all
+    &lt;/Limit&gt;
+    &lt;LimitExcept GET POST OPTIONS PROPFIND&gt;
+        Order deny,allow
+        Deny from all
+    &lt;/LimitExcept&gt;
+&lt;/Directory&gt;</programlisting>
+
+    <para>Note : Since Apahce 2.2, you can just uncomment the line which
+    include the user directory config.</para>
+
+    <para>If you wish to start the Apache Webserver at boottime, you need to
+    add apache=yes to your /etc/rc.conf.</para>
+
+    <para>You could now start, stop and restart the Apache Webserver using
+    apachectl like that :</para>
+
+    <programlisting>&gt; apachectl start</programlisting>
+
+    <para>Or using the rc.d script if you enabled it, just like that :</para>
+
+    <programlisting>&gt; /etc/rc.d/apache start</programlisting>
+
+    <para>To stop the server, substitute start with stop. If you're running a
+    production server, you should pay attention to the graceful option.</para>
+
+    <para></para>
+
+    <para>Once the server is started, you can connect to it with any browser,
+    using your IP adress or the server name you setup.</para>
+
+    <para>For example locally :</para>
+
+    <programlisting>&gt; links 127.0.0.1</programlisting>
+
+    <para>This way you can make sure it works before going on with the next
+    step.</para>
+
+    <para></para>
+
+    <para>If you want one of your exisiting user to be able to easily manage
+    webpages, just add him to the www group like that:</para>
+
+    <programlisting>&gt; usermod -G www <replaceable>&lt;userlogin&gt;</replaceable></programlisting>
+
+    <para>This is sometimes needed when users want to hack around with their
+    own blogs or wiki manually.</para>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>PHP Setup</title>
+
+    <para></para>
+
+    <para>First, you need to get the Apache module for PHP (version 5.1.4)
+    installed on your machine :</para>
+
+    <programlisting>&gt; cd /usr/pkgsr/www/ap-php
+&gt; make &amp;&amp; make install</programlisting>
+
+    <para>Once the build and the installation is fine, and as explicited by
+    the installation message, you need to setup the php module, and the
+    handler in your apache configuration.</para>
+
+    <programlisting>&gt; vim /usr/pkg/etc/httpd/httpd.conf</programlisting>
+
+    <para></para>
+
+    <programlisting>#
+# Dynamic Shared Object (DSO) Support
+#
+[...]
+LoadModule php5_module /usr/pkg/lib/httpd/mod_php5.so
+AddHandler application/x-httpd-php .php</programlisting>
+
+    <para>And if you want to have a default php page, you will need to add
+    index.php to your DirectoryIndex :</para>
+
+    <programlisting>#
+# DirectoryIndex: sets the file that Apache will serve if a directory is requested
+[...]
+DirectoryIndex index.php index.html index.html.var</programlisting>
+
+    <para></para>
+
+    <para>To test if PHP is working, create a small file in your Document Root
+    Directory (this is by default /usr/pkg/share/httpd/htdocs) called
+    test.php</para>
+
+    <programlisting>&gt; vim /usr/pkg/share/httpd/htdocs/test.php</programlisting>
+
+    <para>This file needs to contain only one line with the function phpinfo()
+    :</para>
+
+    <programlisting>&lt;? phpinfo() ?&gt;</programlisting>
+
+    <para>Open your Browser and point it to this URL:</para>
+
+    <programlisting>&gt; links http://127.0.0.1/test.php</programlisting>
+
+    <para>You should now see a Website with information regarding your PHP
+    installation.</para>
+
+    <para></para>
+
+    <para>You can now install extension to PHP like to handle zip archive for
+    example :</para>
+
+    <programlisting>&gt; cd /usr/pkgsr/archivers/php-zip
+&gt; make &amp;&amp; make install</programlisting>
+
+    <para>If the build and installation were fine, and as explicited in the
+    installation message, you need now to enable the extension:</para>
+
+    <programlisting>&gt; vim /usr/pkg/etc/php.ini</programlisting>
+
+    <para></para>
+
+    <programlisting>;;;;;;;;;;;;;;;;;;;;;;
+; Dynamic Extensions ;
+;;;;;;;;;;;;;;;;;;;;;;
+[...]
+extension=zip.so</programlisting>
+
+    <para>After restarting the server the extension should be displayed in
+    your test page.</para>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>PostgresQL Server Setup</title>
+
+    <para></para>
+
+    <para>As usual we will first need to install postgresql80 from pkgsrc.
+    This version has been chosen mainly because of the version expected by
+    phppgadmin, that we will install later on.</para>
+
+    <programlisting>&gt; cd /usr/pkgsr/databases/postgresql80
+&gt; make &amp;&amp; make install</programlisting>
+
+    <para>If the build and installation were fine, you should now add
+    pgsql=yes to your /etc/rc.conf.</para>
+
+    <para>You could now start the PostgresQL server using postmaster, or
+    better, using the rc.d script if you enabled it, just like that :</para>
+
+    <programlisting>&gt; /etc/rc.d/pgsql start</programlisting>
+
+    <para>This will take care of the initial setup for you ;-)</para>
+
+    <para>To stop the server, just substitute start with stop as usual.</para>
+
+    <para></para>
+
+    <para>I strongly advise you to install phpPgAdmin to administrate your
+    database. It makes the work easier. However to be quite secure, phpPgAdmin
+    doesnt authorise the default user pgsql to login.</para>
+
+    <para></para>
+
+    <para>Here is how we will setup the PostgresQL installation to be secure
+    and usable with a "database administrator" login in phpPgAdmin :</para>
+
+    <para></para>
+
+    <itemizedlist>
+      <listitem>
+        <para>PostgresQL is by default configured to "trust" local user, that
+        means they dont need to enter any password. But as we will have a
+        website to access it, that will soon become a problem.</para>
+
+        <para>We first need to reconfigure the PostgresQL administrator (user
+        pgsql) to have a password.</para>
+
+        <programlisting>&gt; su pgsql
+$ psql -c "ALTER USER pgsql WITH PASSWORD '<replaceable>newpassword</replaceable>'" -d template1
+$ exit</programlisting>
+      </listitem>
+
+      <listitem>
+        <para>Then we need to reconfigure the server to ask for a password,
+        even for local users :</para>
+
+        <programlisting>&gt; vim /usr/pkg/pgsql/data/pg_hba.conf</programlisting>
+
+        <programlisting># TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+
+# "local" is for Unix domain socket connections only
+local   all         all                               md5
+# IPv4 local connections:
+host    all         all         127.0.0.1/32          md5
+# IPv6 local connections:
+host    all         all         ::1/128               md5</programlisting>
+      </listitem>
+
+      <listitem>
+        <para>Now restart your server to apply the changes :</para>
+
+        <programlisting>&gt; /etc/rc.d/pgsql restart</programlisting>
+      </listitem>
+    </itemizedlist>
+
+    <para></para>
+  </section>
+
+  <section>
+    <title>phpPgAdmin Setup</title>
+
+    <para>As usual we will first need to install phppgadmin from
+    pkgsrc.</para>
+
+    <para>This will also install the correct version of PostgresQL clients
+    (8.0.8) if needed, along with the PostgresQL module for PHP.</para>
+
+    <programlisting>&gt; cd /usr/pkgsr/databases/phppgadmin
+&gt; make &amp;&amp; make install</programlisting>
+
+    <para>If the build and installation were fine, and as explicited by the
+    install message, you should now enable the PostgresQL Module for PHP
+    :</para>
+
+    <programlisting>&gt; vim /usr/pkg/etc/php.ini</programlisting>
+
+    <programlisting>;;;;;;;;;;;;;;;;;;;;;;
+; Dynamic Extensions ;
+;;;;;;;;;;;;;;;;;;;;;;
+[...]
+extension=pgsql.so</programlisting>
+
+    <para>And you need to setup the phppgadmin website :</para>
+
+    <para></para>
+
+    <programlisting>&gt; vim /usr/pkg/etc/httpd/httpd.conf</programlisting>
+
+    <programlisting>[...]
+Include /usr/pkg/share/examples/phppgadmin/apache.conf</programlisting>
+
+    <para></para>
+
+    <para>You need to restart the apache server to make sure everything is
+    setup :</para>
+
+    <programlisting>&gt; /etc/rc.d/apache restart</programlisting>
+
+    <para>Then you can connect to your brand new website to administrate your
+    database to the phppgadmin website. As an example locally :</para>
+
+    <programlisting>&gt; links http://localhost/phppgadmin/</programlisting>
+
+    <para>Hint : Dont forget the trailing slash...</para>
+
+    <para></para>
+
+    <para>At this point you should not be able to login as pgsql. To enable
+    this just edit /usr/pkg/share/phppgadmin/config.inc.php and set the extra
+    login security to false :</para>
+
+    <programlisting>&gt; vim /usr/pkg/share/phppgadmin/config.inc.php</programlisting>
+
+    <programlisting>// If extra login security is true, then logins via phpPgAdmin with no
+// password or certain usernames (pgsql, postgres, root, administrator)
+// will be denied. Only set this false once you have read the FAQ and
+// understand how to change PostgreSQL's pg_hba.conf to enable
+// passworded local connections.
+$conf['extra_login_security'] = false;</programlisting>
+
+    <para><emphasis role="bold">Please make sure you have enable md5 password
+    authentication in the PostgresQL Server as explicited before
+    !!!</emphasis></para>
+
+    <para>I would really appreciate any feedback on this section and the best
+    way to setup a secure postgresQL / phpPgAdmin since my experience with
+    databases and PostgresQL is quite limited. Just drop me a <ulink
+    url="mailto:asmodehn_AT_gna_DOT_org">mail</ulink>, thanks a lot !</para>
+
+    <para></para>
+
+    <para>Now you should be able to login as pgsql with the password you
+    specified earlier on. This way you can easily create databases for blogs,
+    wikis, etc.</para>
+
+    <para></para>
+
+    <para></para>
+  </section>
+</article>
